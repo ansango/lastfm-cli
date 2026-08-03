@@ -1,8 +1,8 @@
-# lastfm-cli
+# @ansango/lastfm-cli
 
 CLI for the [Last.fm API](https://www.last.fm/api), built on [`lastfm-client-ts`](https://github.com/ansango/lastfm-client-ts).
 
-**Read-only by default.** Loads credentials from `~/.hermes/.env.lastfm`. Emits JSON to stdout, errors to stderr.
+**Read-only by default.** Loads credentials from a standard `.env` file via `dotenv` (search order: `$LASTFM_CLI_ENV_FILE`, `./.env`, `~/.lastfm-cli/.env`). Emits JSON to stdout, errors to stderr.
 
 ## Installation
 
@@ -14,12 +14,23 @@ npm install -g github:ansango/lastfm-cli
 
 ## Credentials
 
-The CLI reads the API key from `~/.hermes/.env.lastfm`:
+The CLI reads `LASTFM_API_KEY` from a standard `.env` file using the
+[`dotenv`](https://github.com/motdotla/dotenv) parser (so escapes,
+multi-line values, `$VAR` interpolation and `export` prefix all work).
+
+Search order (first hit wins, unless `LASTFM_CLI_ENV_FILE` is set):
+
+1. `$LASTFM_CLI_ENV_FILE` — absolute path override.
+2. `./.env` in the current working directory (the dotenv default).
+3. `~/.lastfm-cli/.env` — project-scoped fallback.
 
 ```
 LASTFM_API_KEY=your_api_key
 LASTFM_BASE_URL=https://ws.audioscrobbler.com/2.0/   # optional
 ```
+
+Variables already exported in your shell always win over the file. If none of
+the above provide `LASTFM_API_KEY`, the CLI exits with code 2.
 
 Get an API key at **https://www.last.fm/api/account/create**.
 
@@ -61,10 +72,15 @@ Periods for `user.getTop*`: `overall | 7day | 1month | 3month | 6month | 12month
 
 ## Read-only enforcement
 
-`track.postTrackScrobble` and `track.postBatchTrackScrobble` exist on the underlying client but require an authenticated session. This CLI **does not support writes** — calls to those methods (or any future write method we add to the blocklist) return a clear error:
+`track.scrobble` and `track.scrobbleMany` (the canonical Last.fm names, plus
+their deprecated aliases `track.postTrackScrobble` and
+`track.postBatchTrackScrobble`) exist on the underlying client but require an
+authenticated session. This CLI **does not support writes** — calls to those
+methods (or any future write method we add to the blocklist) return a clear
+error:
 
 ```
-ERROR: Method "track.postTrackScrobble" is an authenticated write operation. This CLI is read-only.
+ERROR: Method "track.scrobble" is an authenticated write operation. This CLI is read-only.
 ```
 
 ## Exit codes
@@ -89,7 +105,6 @@ npm test            # node:test runner via tsx
 ## Related
 
 - [`lastfm-client-ts`](https://github.com/ansango/lastfm-client-ts) — the underlying Last.fm client (this CLI is a thin wrapper on top of it).
-- The Hermes `lastfm` skill (in this user's `~/.hermes/skills/media/lastfm/`) installs this CLI as a dependency.
 
 ## License
 

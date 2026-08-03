@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
- * lastfm-cli - CLI for the Last.fm API, built on lastfm-client-ts.
- * Read-only by default. Loads credentials from ~/.hermes/.env.lastfm.
+ * @ansango/lastfm-cli - CLI for the Last.fm API, built on lastfm-client-ts.
+ * Read-only by default. Loads credentials from a standard .env file via
+ * dotenv (search order: $LASTFM_CLI_ENV_FILE > ./env > ~/.lastfm-cli/.env).
  */
 
+import { LastFmApiError } from 'lastfm-client-ts';
 import { loadCredentials } from './env.js';
 import { makeClient } from './client.js';
 import { callMethod, listMethods, parseJsonArg, parseKVArgs } from './dispatch.js';
@@ -64,7 +66,7 @@ async function main(): Promise<void> {
     const msg = e instanceof Error ? e.message : String(e);
     process.stderr.write(`ERROR: ${msg}\n`);
     if (process.env.DEBUG && e instanceof Error && e.stack) process.stderr.write(e.stack + '\n');
-    if (/Last\.fm|API Error|HTTP Error/i.test(msg)) {
+    if (e instanceof LastFmApiError) {
       process.exit(EXIT.API_ERROR);
     }
     process.exit(EXIT.GENERIC);

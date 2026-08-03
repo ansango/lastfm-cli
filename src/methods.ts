@@ -15,8 +15,16 @@ export type Namespace = (typeof NAMESPACES)[number];
 /**
  * Methods that exist on the package but require an authenticated session.
  * This CLI is read-only — these are blocked at dispatch time with a clear error.
+ *
+ * lastfm-client-ts@3.1.2 renamed `postTrackScrobble` → `scrobble` and
+ * `postBatchTrackScrobble` → `scrobbleMany`. We block both the canonical
+ * names and the deprecated aliases so older and newer clients are covered.
  */
 export const BLOCKED_METHODS: ReadonlySet<string> = new Set([
+  // Canonical names (lastfm-client-ts >= 3.1.2)
+  'scrobble',
+  'scrobbleMany',
+  // Deprecated aliases (lastfm-client-ts <= 3.1.1, kept as aliases in 3.1.x)
   'postTrackScrobble',
   'postBatchTrackScrobble',
 ]);

@@ -1,6 +1,6 @@
 {
-  "name": "lastfm-cli",
-  "version": "0.1.0",
+  "name": "@ansango/lastfm-cli",
+  "version": "0.2.0",
   "description": "CLI for the Last.fm API, built on lastfm-client-ts. Read-only by default — no auth required.",
   "license": "MIT",
   "type": "module",
@@ -24,7 +24,8 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "lastfm-client-ts": "3.1.1"
+    "dotenv": "^17.4.2",
+    "lastfm-client-ts": "^3.1.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -37,6 +38,15 @@
     "music",
     "api"
   ],
+  "author": "ansango <anibalsantosgo@gmail.com>",
+  "homepage": "https://github.com/ansango/lastfm-cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ansango/lastfm-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ansango/lastfm-cli/issues"
+  },
   "publishConfig": {
     "access": "public"
   }

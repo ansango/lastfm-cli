@@ -1,6 +1,6 @@
 {
   "name": "@ansango/lastfm-cli",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "CLI for the Last.fm API, built on @ansango/lastfm-api. Read-only by default — no auth required.",
   "license": "MIT",
   "type": "module",

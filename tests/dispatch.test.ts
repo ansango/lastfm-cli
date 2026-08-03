@@ -44,13 +44,13 @@ test('parseJsonArg: throws if --json has no payload', () => {
 });
 
 test('BLOCKED_METHODS contains the canonical scrobble methods', () => {
-  // lastfm-client-ts >= 3.1.2
+  // @ansango/lastfm-api >= 3.1.2
   assert.ok(BLOCKED_METHODS.has('scrobble'));
   assert.ok(BLOCKED_METHODS.has('scrobbleMany'));
 });
 
 test('BLOCKED_METHODS also covers the deprecated scrobble aliases', () => {
-  // lastfm-client-ts <= 3.1.1, kept as deprecated aliases in 3.1.x
+  // @ansango/lastfm-api <= 3.1.1, kept as deprecated aliases in 3.1.x
   assert.ok(BLOCKED_METHODS.has('postTrackScrobble'));
   assert.ok(BLOCKED_METHODS.has('postBatchTrackScrobble'));
 });

@@ -1,4 +1,4 @@
-import { LastFmClient } from 'lastfm-client-ts';
+import { LastFmClient } from '@ansango/lastfm-api';
 import { NAMESPACES } from './methods.js';
 import { ENV_FILE } from './env.js';
 import { makeClient } from './client.js';
@@ -6,7 +6,7 @@ import { publicMethods } from './dispatch.js';
 
 export function generalHelp(): string {
   return [
-    `lastfm - Last.fm CLI (lastfm-client-ts v3.x)`,
+    `lastfm - Last.fm CLI (@ansango/lastfm-api v3.x)`,
     ``,
     `Usage:`,
     `  lastfm <namespace> <method> [key=value ...]`,

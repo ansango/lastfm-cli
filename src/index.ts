@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * @ansango/lastfm-cli - CLI for the Last.fm API, built on lastfm-client-ts.
+ * @ansango/lastfm-cli - CLI for the Last.fm API, built on @ansango/lastfm-api.
  * Read-only by default. Loads credentials from a standard .env file via
  * dotenv (search order: $LASTFM_CLI_ENV_FILE > ./env > ~/.lastfm-cli/.env).
  */
 
-import { LastFmApiError } from 'lastfm-client-ts';
+import { LastFmApiError } from '@ansango/lastfm-api';
 import { loadCredentials } from './env.js';
 import { makeClient } from './client.js';
 import { callMethod, listMethods, parseJsonArg, parseKVArgs } from './dispatch.js';

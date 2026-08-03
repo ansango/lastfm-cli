@@ -1,4 +1,4 @@
-import { LastFmClient } from 'lastfm-client-ts';
+import { LastFmClient } from '@ansango/lastfm-api';
 import { DEFAULT_BASE_URL, ENV_FILE } from './env.js';
 import { EXIT } from './methods.js';
 

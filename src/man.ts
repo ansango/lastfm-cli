@@ -1,5 +1,5 @@
 /**
- * Curated reference for every method exposed by lastfm-client-ts@3.x that
+ * Curated reference for every method exposed by @ansango/lastfm-api@3.x that
  * this CLI calls, plus the blocked scrobble methods (documented so users
  * understand what the CLI refuses to run).
  *

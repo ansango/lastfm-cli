@@ -1,4 +1,4 @@
-import { LastFmClient } from 'lastfm-client-ts';
+import { LastFmClient } from '@ansango/lastfm-api';
 import { BLOCKED_METHODS, NAMESPACES, type Namespace } from './methods.js';
 
 /** Parse CLI-style `key=value` args into a plain object. */

@@ -39,6 +39,7 @@ Get an API key at **https://www.last.fm/api/account/create**.
 ```bash
 lastfm <namespace> <method> [key=value ...]
 lastfm <namespace> <method> --json '{...}'
+lastfm man [namespace | namespace.method] [--markdown] [--all]
 lastfm methods [namespace]
 lastfm help [namespace.method]
 lastfm config
@@ -47,6 +48,18 @@ lastfm config
 ### Namespaces
 
 `user`, `album`, `artist`, `track`, `tag`, `chart`, `geo`, `library`.
+
+### Built-in manual
+
+`lastfm man` ships a curated reference for every method this CLI exposes — parameters, types, required/optional, and an example invocation.
+
+```bash
+lastfm man                          # top-level index
+lastfm man artist                   # list methods in a namespace
+lastfm man artist.getInfo           # full reference for one method
+lastfm man --markdown artist        # same listing, emitted as markdown
+lastfm man --all --markdown > MAN.md  # dump every method as a single markdown doc
+```
 
 ### Examples
 

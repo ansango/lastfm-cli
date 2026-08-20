@@ -21,6 +21,7 @@ import {
   getMethodSpec,
   NAMESPACES_SPEC,
 } from './man.js';
+import { handleInsights } from './insights/dispatcher.js';
 import { EXIT, NAMESPACES } from './methods.js';
 
 async function main(): Promise<void> {
@@ -64,6 +65,11 @@ async function main(): Promise<void> {
 
     if (first === 'man') {
       handleMan(argv.slice(1));
+      return;
+    }
+
+    if (first === 'insights') {
+      await handleInsights(argv.slice(1));
       return;
     }
 

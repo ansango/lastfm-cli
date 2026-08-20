@@ -1,6 +1,6 @@
 {
   "name": "@ansango/lastfm-cli",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "CLI for the Last.fm API, built on @ansango/lastfm-api. Read-only by default — no auth required.",
   "license": "MIT",
   "type": "module",
@@ -17,8 +17,8 @@
     "start": "node dist/index.js",
     "clean": "rm -rf dist",
     "prepare": "npm run build",
-    "test": "node --test --import tsx tests/*.test.ts",
-    "test:watch": "node --test --import tsx --watch tests/*.test.ts"
+    "test": "node --test --import tsx tests/*.test.ts tests/insights/lib/*.test.ts tests/insights/integration/*.test.ts",
+    "test:watch": "node --test --import tsx --watch tests/*.test.ts tests/insights/lib/*.test.ts tests/insights/integration/*.test.ts"
   },
   "engines": {
     "node": ">=20.0.0"

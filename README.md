@@ -49,6 +49,36 @@ lastfm config
 
 `user`, `album`, `artist`, `track`, `tag`, `chart`, `geo`, `library`.
 
+### Insights (derived views)
+
+`lastfm insights <subcommand> ...` ships a curated set of derived views
+over your listening history. Each subcommand calls `@ansango/lastfm-cli`
+for the raw data, then renders a markdown or JSON report.
+
+```bash
+lastfm insights                   # list subcommands
+lastfm insights summary --user ansango --period weekly
+lastfm insights now-playing --user ansango
+lastfm insights hours --user ansango --since 30d
+lastfm insights discoveries --user ansango --since 90d
+lastfm insights trends --user ansango --now weekly --compare monthly
+lastfm insights mood --user ansango --period weekly
+lastfm insights personality --user ansango
+lastfm insights compare --user-a alice --user-b bob --period overall
+lastfm insights binges --user ansango --since 30d --min-length 3
+```
+
+Subcommands: `summary`, `now-playing`, `hours`, `discoveries`, `trends`,
+`mood`, `personality`, `compare`, `binges`. Each prints its own
+`--help` with the full flag list.
+
+These subcommands share the same `LASTFM_API_KEY` env discovery as the
+rest of the CLI; no extra configuration is required.
+
+For the architecture of this namespace — module graph, dispatch flow, entity
+composition, and per-command data flows — see
+[`src/insights/README.md`](src/insights/README.md).
+
 ### Built-in manual
 
 `lastfm man` ships a curated reference for every method this CLI exposes — parameters, types, required/optional, and an example invocation.

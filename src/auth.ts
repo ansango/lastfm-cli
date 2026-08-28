@@ -96,14 +96,38 @@ export async function runAuthGetToken(client: LastFmClient): Promise<string> {
 export async function runAuthGetSession(
 	client: LastFmClient,
 	token: string,
-	opts: { export?: boolean } = {},
+	opts: { export?: boolean; callback?: CallbackOpts } = {},
 ): Promise<string> {
 	if (!token) {
 		throw new Error('auth.getSession requires --token=<token>. Run `lastfm auth.getToken` first.');
 	}
-	const result = await client.auth.getSession({ token });
+	let resolvedToken = token;
+	if (opts.callback) {
+		// Lazy import to keep the auth module's runtime footprint small when
+		// the callback flag is not used (the default code path).
+		const { startCallbackServer } = await import('./callback-server.js');
+		const server = await startCallbackServer(opts.callback.port ?? 0);
+		// Emit the callback URL on a dedicated stderr line so callers can
+		// script around it (e.g. `lastfm auth.getSession --callback 2>&1
+		// 1>/dev/null | head -1`).
+		process.stderr.write(`Callback server listening at: ${server.url}\n`);
+		try {
+			resolvedToken = await server.waitForToken(opts.callback.timeoutMs ?? 120_000);
+		} finally {
+			server.close();
+		}
+	}
+	const result = await client.auth.getSession({ token: resolvedToken });
 	if (!result.session?.key) {
 		throw new Error('auth.getSession returned no session key — did you authorise the request token?');
 	}
 	return formatGetSessionResult(result.session, opts.export ?? false);
+}
+
+/** Options for the `--callback` flag. */
+export interface CallbackOpts {
+	/** Port to bind the local server to. `0` means auto-pick in the IANA dynamic range. */
+	port?: number;
+	/** Timeout in milliseconds for the redirect to arrive. */
+	timeoutMs?: number;
 }

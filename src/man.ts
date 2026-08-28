@@ -40,8 +40,6 @@ export interface NamespaceSpec {
   methods: Record<string, MethodSpec>;
 }
 
-const RESTRICTED = 'This CLI is read-only; scrobbling requires an authenticated browser flow.';
-
 export const NAMESPACES_SPEC: Record<string, NamespaceSpec> = {
   user: {
     name: 'user',
@@ -359,44 +357,40 @@ export const NAMESPACES_SPEC: Record<string, NamespaceSpec> = {
       },
       scrobble: {
         name: 'scrobble',
-        brief: 'Scrobble a single track. (Blocked — requires an authenticated session.)',
-        blocked: true,
-        blockReason: RESTRICTED,
+        brief: 'Scrobble a single track. Requires an authenticated session (`sk`).',
         params: [
           { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
           { name: 'track', type: 'string', required: true, description: 'Track name.' },
           { name: 'timestamp', type: 'unix-ts', required: true, description: 'When the track was played (UNIX seconds).' },
           { name: 'album', type: 'string', required: false, description: 'Album name (optional).' },
-          { name: 'sk', type: 'string', required: true, description: 'Authenticated session key (sk).' },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
         ],
+        example: 'lastfm track scrobble artist="Wet Leg" track="pond song" timestamp=$(date +%s)',
       },
       scrobbleMany: {
         name: 'scrobbleMany',
-        brief: 'Scrobble a batch of tracks. (Blocked — requires an authenticated session.)',
-        blocked: true,
-        blockReason: RESTRICTED,
+        brief: 'Scrobble a batch of tracks. Requires an authenticated session (`sk`).',
         params: [
           { name: 'tracks', type: 'object[]', required: true, description: 'Array of {artist, track, timestamp, album?} entries.' },
-          { name: 'sk', type: 'string', required: true, description: 'Authenticated session key (sk).' },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
         ],
+        example: 'lastfm track scrobbleMany --json \'{"tracks":[{"artist":"Wet Leg","track":"pond song","timestamp":1693000000}]}\'',
       },
       postTrackScrobble: {
         name: 'postTrackScrobble',
-        brief: 'Deprecated alias for `scrobble`. (Blocked.)',
-        blocked: true,
-        blockReason: RESTRICTED,
+        brief: 'Deprecated alias for `scrobble`.',
         params: [
           { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
           { name: 'track', type: 'string', required: true, description: 'Track name.' },
           { name: 'timestamp', type: 'unix-ts', required: true, description: 'UNIX timestamp of the play.' },
         ],
+        example: 'lastfm track postTrackScrobble artist="Wet Leg" track="pond song" timestamp=$(date +%s)',
       },
       postBatchTrackScrobble: {
         name: 'postBatchTrackScrobble',
-        brief: 'Deprecated alias for `scrobbleMany`. (Blocked.)',
-        blocked: true,
-        blockReason: RESTRICTED,
+        brief: 'Deprecated alias for `scrobbleMany`.',
         params: [{ name: 'tracks', type: 'object[]', required: true, description: 'Batch of scrobble entries.' }],
+        example: 'lastfm track postBatchTrackScrobble --json \'{"tracks":[{"artist":"Wet Leg","track":"pond song","timestamp":1693000000}]}\'',
       },
     },
   },

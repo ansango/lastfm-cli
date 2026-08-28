@@ -8,6 +8,7 @@
 import { LastFmApiError } from '@ansango/lastfm-api';
 import { runAuthGetSession, runAuthGetToken } from './auth.js';
 import { loadCredentials } from './env.js';
+import { rephraseSessionKeyError } from './session-key-error.js';
 import { makeClient } from './client.js';
 import { callMethod, listMethods, parseJsonArg, parseKVArgs } from './dispatch.js';
 import { configReport, generalHelp, methodHelp, namespaceHelp } from './help.js';
@@ -118,7 +119,8 @@ async function main(): Promise<void> {
     process.stdout.write(JSON.stringify(result, null, 2) + '\n');
     return;
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
+    const rephrased = rephraseSessionKeyError(e, first, second);
+    const msg = rephrased ?? (e instanceof Error ? e.message : String(e));
     process.stderr.write(`ERROR: ${msg}\n`);
     if (process.env.DEBUG && e instanceof Error && e.stack) process.stderr.write(e.stack + '\n');
     if (e instanceof LastFmApiError) {

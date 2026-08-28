@@ -14,17 +14,29 @@ export const NAMESPACES = [
 export type Namespace = (typeof NAMESPACES)[number];
 
 /**
- * Methods that exist on the package but require an authenticated session.
- * This CLI is read-only — these are blocked at dispatch time with a clear error.
+ * Methods that require an authenticated session (`sk`) and are **not**
+ * auto-resolved from the `LASTFM_SESSION_KEY` env var because the API
+ * library considers them "transport-shaping" — passing `sk` inline vs
+ * via the env var changes the signature, and Last.fm rejects the request
+ * if `sk` appears in both. The CLI always sets `sk` via the env var
+ * (`eval $(lastfm auth.getSession --token=<TOKEN> --export)` from #4),
+ * so these methods work without a per-call `sk=...` arg.
  *
- * @ansango/lastfm-api@3.1.2 renamed `postTrackScrobble` → `scrobble` and
- * `postBatchTrackScrobble` → `scrobbleMany`. We block both the canonical
- * names and the deprecated aliases so older and newer clients are covered.
+ * This set is the surface that was previously blocked by `BLOCKED_METHODS`
+ * (see PR history). It is now informational: `callMethod` does not check
+ * it. The purpose is for `man` to mark these methods as requiring auth
+ * (so the docs hint at the eval-export flow) and for tests to assert
+ * the surface stays in sync.
  */
-export const BLOCKED_METHODS: ReadonlySet<string> = new Set([
+export const AUTH_REQUIRED_METHODS: ReadonlySet<string> = new Set([
   // Canonical names (@ansango/lastfm-api >= 3.1.2)
   'scrobble',
   'scrobbleMany',
+  'love',
+  'unlove',
+  'updateNowPlaying',
+  'addTags',
+  'removeTag',
   // Deprecated aliases (@ansango/lastfm-api <= 3.1.1, kept as aliases in 3.1.x)
   'postTrackScrobble',
   'postBatchTrackScrobble',

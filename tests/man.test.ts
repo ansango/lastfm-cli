@@ -18,22 +18,26 @@ test('NAMESPACES_SPEC covers all 8 read namespaces', () => {
   }
 });
 
-test('every method in NAMESPACES_SPEC has a brief and at least one example OR is blocked', () => {
+test('every method in NAMESPACES_SPEC has a brief and at least one example', () => {
+  // Issue #5 removed the "blocked" deny-list. Every method exposed by the
+  // client is also exposed by the CLI; the auth gating happens in the API
+  // library + the CLI's error rephrasing layer. So the example is required
+  // for every method, no more `blocked` short-circuit.
   for (const [ns, spec] of Object.entries(NAMESPACES_SPEC)) {
     for (const m of Object.values(spec.methods)) {
       assert.ok(m.brief && m.brief.length > 0, `${ns}.${m.name} needs a brief`);
-      if (!m.blocked) {
-        assert.ok(m.example, `non-blocked method ${ns}.${m.name} should include an example`);
-      }
+      assert.ok(m.example, `non-blocked method ${ns}.${m.name} should include an example`);
     }
   }
 });
 
-test('blocked scrobble methods are all marked blocked with the same reason', () => {
+test('write methods are no longer marked blocked in NAMESPACES_SPEC.track', () => {
+  // Pre-#5: scrobble / scrobbleMany / postTrackScrobble / postBatchTrackScrobble
+  // were flagged `blocked: true`. Post-#5 they're callable; the gating moved
+  // from the CLI to the API library's `sk` check.
   for (const m of Object.values(NAMESPACES_SPEC.track.methods)) {
     if (['scrobble', 'scrobbleMany', 'postTrackScrobble', 'postBatchTrackScrobble'].includes(m.name)) {
-      assert.equal(m.blocked, true, `${m.name} should be blocked`);
-      assert.ok(m.blockReason && m.blockReason.length > 0, `${m.name} needs a block reason`);
+      assert.equal(m.blocked, undefined, `${m.name} should not be blocked`);
     }
   }
 });
@@ -61,10 +65,10 @@ test('formatMethodText includes params, example and Last.fm URL', () => {
   assert.match(text, /last\.fm\/api\/show\/artist\.getInfo/);
 });
 
-test('formatMethodText flags blocked methods prominently', () => {
+test('formatMethodText no longer flags scrobble as BLOCKED', () => {
   const r = getMethodSpec('track.scrobble')!;
   const text = formatMethodText(r.ns, r.method);
-  assert.match(text, /BLOCKED/);
+  assert.doesNotMatch(text, /BLOCKED/);
 });
 
 test('formatMethodMarkdown renders a GitHub-flavoured table', () => {

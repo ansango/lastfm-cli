@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseKVArgs, parseJsonArg, publicMethods } from '../src/dispatch.js';
-import { BLOCKED_METHODS, NAMESPACES } from '../src/methods.js';
+import { AUTH_REQUIRED_METHODS, NAMESPACES } from '../src/methods.js';
 
 test('parseKVArgs: parses key=value pairs', () => {
   const out = parseKVArgs(['artist=Radiohead', 'limit=10']);
@@ -43,32 +43,45 @@ test('parseJsonArg: throws if --json has no payload', () => {
   );
 });
 
-test('BLOCKED_METHODS contains the canonical scrobble methods', () => {
+test('AUTH_REQUIRED_METHODS contains the canonical scrobble methods', () => {
   // @ansango/lastfm-api >= 3.1.2
-  assert.ok(BLOCKED_METHODS.has('scrobble'));
-  assert.ok(BLOCKED_METHODS.has('scrobbleMany'));
+  assert.ok(AUTH_REQUIRED_METHODS.has('scrobble'));
+  assert.ok(AUTH_REQUIRED_METHODS.has('scrobbleMany'));
 });
 
-test('BLOCKED_METHODS also covers the deprecated scrobble aliases', () => {
+test('AUTH_REQUIRED_METHODS also covers the deprecated scrobble aliases', () => {
   // @ansango/lastfm-api <= 3.1.1, kept as deprecated aliases in 3.1.x
-  assert.ok(BLOCKED_METHODS.has('postTrackScrobble'));
-  assert.ok(BLOCKED_METHODS.has('postBatchTrackScrobble'));
+  assert.ok(AUTH_REQUIRED_METHODS.has('postTrackScrobble'));
+  assert.ok(AUTH_REQUIRED_METHODS.has('postBatchTrackScrobble'));
+});
+
+test('AUTH_REQUIRED_METHODS contains the tag / love / now-playing methods', () => {
+  // The full write surface (12 names) is described in issue #5. We assert
+  // the non-scrobble half here so a future removal of one of these is
+  // surfaced as a test failure.
+  for (const m of ['love', 'unlove', 'updateNowPlaying', 'addTags', 'removeTag']) {
+    assert.ok(AUTH_REQUIRED_METHODS.has(m), `expected "${m}" in AUTH_REQUIRED_METHODS`);
+  }
 });
 
 test('NAMESPACES includes auth (the auth foundation from issue #4)', () => {
   // The auth namespace carries the read-only auth flow (getToken, getSession).
-  // It is intentionally NOT in the BLOCKED_METHODS list — these are the
+  // It is intentionally NOT in the AUTH_REQUIRED_METHODS list — these are the
 	// methods that produce a session key, not write methods that consume one.
 	// See src/auth.ts and src/index.ts for the auth dispatch.
 	assert.ok(NAMESPACES.includes('auth' as never));
 });
 
-test('publicMethods filters out blocked methods', () => {
+test('publicMethods returns every function on the service (no blocking)', () => {
+  // Issue #5 removed the BLOCKED_METHODS deny-list. Write methods are
+  // forward-able; the API library enforces the `sk` requirement, and the
+  // CLI rephrases the resulting error into the auth-flow hint.
   const fakeService = {
     getInfo: () => {},
     getSimilar: () => {},
     postTrackScrobble: () => {},
+    scrobble: () => {},
   };
   const out = publicMethods(fakeService);
-  assert.deepEqual(out, ['getInfo', 'getSimilar']);
+  assert.deepEqual(out, ['getInfo', 'getSimilar', 'postTrackScrobble', 'scrobble']);
 });

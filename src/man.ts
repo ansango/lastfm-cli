@@ -164,6 +164,29 @@ export const NAMESPACES_SPEC: Record<string, NamespaceSpec> = {
         ],
         example: 'lastfm user getWeeklyTrackChart user=ansango from=1704067200 to=1706745600',
       },
+      getPersonalTags: {
+        name: 'getPersonalTags',
+        brief: "Get a user's personal tag entities (artists, albums, or tracks) for a given tag.",
+        description:
+          'The response narrows by the literal `taggingtype`: ' +
+          '`taggingtype=artist` → `taggings.artists.artist: Artist[]`, ' +
+          '`taggingtype=album` → `taggings.albums.album: Album[]`, ' +
+          '`taggingtype=track` → `taggings.tracks.track: Track[]`. ' +
+          'The CLI passes the response through unchanged; consumers (jq, etc.) branch on the three shapes.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'tag', type: 'string', required: true, description: 'The tag to look up.' },
+          {
+            name: 'taggingtype',
+            type: "'artist' | 'album' | 'track'",
+            required: true,
+            description: 'Which kind of entity the tag was applied to.',
+          },
+          { name: 'limit', type: 'number', required: false, description: 'Page size (default 50, max 200).' },
+          { name: 'page', type: 'number', required: false, description: 'Page number (default 1).' },
+        ],
+        example: "lastfm user getPersonalTags user=ansango tag=favorites taggingtype=artist",
+      },
     },
   },
 
@@ -213,6 +236,33 @@ export const NAMESPACES_SPEC: Record<string, NamespaceSpec> = {
           { name: 'page', type: 'number', required: false, description: 'Page number (default 1).' },
         ],
         example: 'lastfm album search album="OK Computer" limit=5',
+      },
+      addTags: {
+        name: 'addTags',
+        brief: 'Add personal tags to an album. Requires an authenticated session (`sk`).',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          { name: 'album', type: 'string', required: true, description: 'Album name.' },
+          {
+            name: 'tags',
+            type: 'string[]',
+            required: true,
+            description: 'Up to 10 tags. Comma-joined string (tags="a,b") or repeated --tag flags. CLI normalises both to comma-joined on the wire.',
+          },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
+        ],
+        example: 'lastfm album addTags artist="Cher" album="Believe" tags="favorites,90s"',
+      },
+      removeTag: {
+        name: 'removeTag',
+        brief: 'Remove a single personal tag from an album. Requires an authenticated session (`sk`).',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          { name: 'album', type: 'string', required: true, description: 'Album name.' },
+          { name: 'tag', type: 'string', required: true, description: 'The single tag to remove.' },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
+        ],
+        example: 'lastfm album removeTag artist="Cher" album="Believe" tag=favorites',
       },
     },
   },
@@ -294,12 +344,46 @@ export const NAMESPACES_SPEC: Record<string, NamespaceSpec> = {
         ],
         example: 'lastfm artist search artist=Radiohead limit=5',
       },
+      getCorrection: {
+        name: 'getCorrection',
+        brief: 'Get the canonical correction for a misspelled artist name.',
+        description:
+          'Returns `{ corrections: { correction: ArtistCorrection[], "@attr"?: { artist } } }`. ' +
+          'Empty `corrections.correction: []` means the name is already canonical. Read-only, no `sk` required.',
+        params: [{ name: 'artist', type: 'string', required: true, description: 'Possibly-misspelled artist name.' }],
+        example: 'lastfm artist getCorrection artist="Cher [Live]"',
+      },
+      addTags: {
+        name: 'addTags',
+        brief: 'Add personal tags to an artist. Requires an authenticated session (`sk`).',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          {
+            name: 'tags',
+            type: 'string[]',
+            required: true,
+            description: 'Up to 10 tags. Comma-joined string (tags="a,b") or repeated --tag flags.',
+          },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
+        ],
+        example: 'lastfm artist addTags artist="Cher" tags="favorites,90s"',
+      },
+      removeTag: {
+        name: 'removeTag',
+        brief: 'Remove a single personal tag from an artist. Requires an authenticated session (`sk`).',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          { name: 'tag', type: 'string', required: true, description: 'The single tag to remove.' },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
+        ],
+        example: 'lastfm artist removeTag artist="Cher" tag=favorites',
+      },
     },
   },
 
   track: {
     name: 'track',
-    brief: 'Track lookups, similar tracks, tags, and search. Scrobbling is blocked.',
+    brief: 'Track lookups, similar tracks, tags, search, and personal mutations (love, tag, scrobble).',
     methods: {
       getInfo: {
         name: 'getInfo',
@@ -354,6 +438,85 @@ export const NAMESPACES_SPEC: Record<string, NamespaceSpec> = {
           { name: 'page', type: 'number', required: false, description: 'Page number (default 1).' },
         ],
         example: 'lastfm track search track="Karma Police" artist=Radiohead limit=5',
+      },
+      getCorrection: {
+        name: 'getCorrection',
+        brief: 'Get the canonical correction for a misspelled track name.',
+        description:
+          'Returns `{ corrections: { correction: TrackCorrection[], "@attr"?: { artist, track } } }`. ' +
+          'Empty `corrections.correction: []` means the name is already canonical. Read-only, no `sk` required.',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          { name: 'track', type: 'string', required: true, description: 'Possibly-misspelled track name.' },
+        ],
+        example: 'lastfm track getCorrection artist="Madona" track=Holiday',
+      },
+      addTags: {
+        name: 'addTags',
+        brief: 'Add personal tags to a track. Requires an authenticated session (`sk`).',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          { name: 'track', type: 'string', required: true, description: 'Track name.' },
+          {
+            name: 'tags',
+            type: 'string[]',
+            required: true,
+            description: 'Up to 10 tags. Comma-joined string (tags="a,b") or repeated --tag flags.',
+          },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
+        ],
+        example: 'lastfm track addTags artist="Cher" track="Believe" tags="favorites,90s"',
+      },
+      removeTag: {
+        name: 'removeTag',
+        brief: 'Remove a single personal tag from a track. Requires an authenticated session (`sk`).',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          { name: 'track', type: 'string', required: true, description: 'Track name.' },
+          { name: 'tag', type: 'string', required: true, description: 'The single tag to remove.' },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
+        ],
+        example: 'lastfm track removeTag artist="Cher" track="Believe" tag=favorites',
+      },
+      love: {
+        name: 'love',
+        brief: 'Mark a track as loved. Requires an authenticated session (`sk`).',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          { name: 'track', type: 'string', required: true, description: 'Track name.' },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
+        ],
+        example: 'lastfm track love artist="Wet Leg" track="pond song"',
+      },
+      unlove: {
+        name: 'unlove',
+        brief: 'Unmark a track as loved. Requires an authenticated session (`sk`).',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          { name: 'track', type: 'string', required: true, description: 'Track name.' },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
+        ],
+        example: 'lastfm track unlove artist="Wet Leg" track="pond song"',
+      },
+      updateNowPlaying: {
+        name: 'updateNowPlaying',
+        brief: 'Announce the track the user is currently listening to. Requires an authenticated session (`sk`).',
+        description:
+          'Returns a non-void `nowplaying` payload with corrected identities and an `ignoredMessage` block. ' +
+          'Timestamps are NOT accepted (unlike scrobble); the server stamps the time. ' +
+          'Optional fields are only sent on the wire when defined.',
+        params: [
+          { name: 'artist', type: 'string', required: true, description: 'Artist name.' },
+          { name: 'track', type: 'string', required: true, description: 'Track name.' },
+          { name: 'album', type: 'string', required: false, description: 'Album name.' },
+          { name: 'trackNumber', type: 'number', required: false, description: 'Track number on the album.' },
+          { name: 'context', type: 'string', required: false, description: 'Free-form context (e.g. "player:spotify").' },
+          { name: 'mbid', type: 'string', required: false, description: 'MusicBrainz ID.' },
+          { name: 'duration', type: 'number', required: false, description: 'Length of the track in seconds.' },
+          { name: 'albumArtist', type: 'string', required: false, description: 'Album artist (when different from track artist).' },
+          { name: 'sk', type: 'string', required: false, description: 'Session key. If omitted, `LASTFM_SESSION_KEY` env var is used.' },
+        ],
+        example: 'lastfm track updateNowPlaying artist="Wet Leg" track="pond song" album="Wet Leg" duration=180',
       },
       scrobble: {
         name: 'scrobble',

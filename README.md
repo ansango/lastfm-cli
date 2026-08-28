@@ -145,9 +145,21 @@ lastfm geo getTopTracks country=spain limit=20
 # Global chart
 lastfm chart getTopArtists limit=50
 
+# Personal tag discovery (issue #7)
+lastfm user getPersonalTags user=ansango tag=favorites taggingtype=artist
+
+# Canonical name correction (issue #6)
+lastfm artist getCorrection artist="Cher [Live]"
+lastfm track getCorrection artist="Madona" track=Holiday
+
 # Auth: get a request token, exchange it for a session key
 lastfm auth.getToken
 eval $(lastfm auth.getSession --token=ABCD1234 --export)
+
+# After the eval: write methods work
+lastfm track love artist='Wet Leg' track='pond song'
+lastfm track addTags artist='Cher' track='Believe' tags='favorites,90s'
+lastfm track updateNowPlaying artist='Wet Leg' track='pond song' duration=180
 ```
 
 Periods for `user.getTop*`: `overall | 7day | 1month | 3month | 6month | 12month`.

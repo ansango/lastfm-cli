@@ -95,17 +95,52 @@ async function main(): Promise<void> {
       }
       if (method === 'getSession') {
         const asExport = rest.includes('--export');
-        // `--token=<value>` (or `token=<value>`) is the only positional arg
-        // accepted. Reject other --flags as a typo-safety net.
-        const knownFlags = new Set(['--export']);
+        const useCallback = rest.includes('--callback');
+        // The flag set depends on whether --callback is present. Without it,
+        // only --export is allowed. With it, --port and --timeout are also
+        // accepted.
+        const knownFlags = useCallback
+          ? new Set(['--export', '--callback', '--port=', '--timeout='])
+          : new Set(['--export']);
         for (const arg of rest) {
-          if (arg.startsWith('--') && !knownFlags.has(arg)) {
-            throw new Error(`Unknown flag "${arg}". auth.getSession accepts only --export.`);
+          if (arg.startsWith('--') && !knownFlags.has(arg) && !arg.startsWith('--port=') && !arg.startsWith('--timeout=')) {
+            throw new Error(
+              useCallback
+                ? `Unknown flag "${arg}". auth.getSession accepts --export, --callback, --port=<port>, --timeout=<seconds>.`
+                : `Unknown flag "${arg}". auth.getSession accepts only --export (and --callback / --port / --timeout with the callback flow).`,
+            );
+          }
+        }
+        // Parse the optional port / timeout. Default port: 0 (auto-pick).
+        // Default timeout: 120s. Both are only meaningful with --callback.
+        let callbackPort = 0;
+        let callbackTimeoutMs = 120_000;
+        if (useCallback) {
+          const portArg = rest.find((a) => a.startsWith('--port='));
+          if (portArg) {
+            const parsed = Number.parseInt(portArg.slice('--port='.length), 10);
+            if (!Number.isInteger(parsed) || parsed < 0) {
+              throw new Error(`--port must be a non-negative integer (got "${portArg}").`);
+            }
+            callbackPort = parsed;
+          }
+          const timeoutArg = rest.find((a) => a.startsWith('--timeout='));
+          if (timeoutArg) {
+            const parsedSec = Number.parseInt(timeoutArg.slice('--timeout='.length), 10);
+            if (!Number.isInteger(parsedSec) || parsedSec <= 0) {
+              throw new Error(`--timeout must be a positive integer in seconds (got "${timeoutArg}").`);
+            }
+            callbackTimeoutMs = parsedSec * 1000;
           }
         }
         const tokenArg = rest.find((a) => a.startsWith('token='));
         const token = tokenArg ? tokenArg.slice('token='.length) : '';
-        process.stdout.write(`${await runAuthGetSession(client, token, { export: asExport })}\n`);
+        process.stdout.write(
+          `${await runAuthGetSession(client, token, {
+            export: asExport,
+            callback: useCallback ? { port: callbackPort, timeoutMs: callbackTimeoutMs } : undefined,
+          })}\n`,
+        );
         return;
       }
       throw new Error(

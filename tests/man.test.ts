@@ -12,7 +12,11 @@ import {
 } from '../src/man.js';
 import { NAMESPACES } from '../src/methods.js';
 
-test('NAMESPACES_SPEC covers all 8 read namespaces', () => {
+test('NAMESPACES_SPEC covers every namespace (9 total: 8 read + auth)', () => {
+  // Post-#4 the auth namespace is exposed too. The test iterates over
+  // the canonical NAMESPACES list and asserts each has a NAMESPACES_SPEC
+  // entry, so adding a new namespace anywhere will surface as a test
+  // failure if its docs are missing.
   for (const ns of NAMESPACES) {
     assert.ok(NAMESPACES_SPEC[ns], `expected namespace "${ns}" in the curated registry`);
   }

@@ -9,29 +9,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **`auth` namespace**: `auth.getToken` returns a request token + the pre-built
+- **`auth` namespace** (#4): `auth.getToken` returns a request token + the pre-built
   `authUrl` from `@ansango/lastfm-api@3.3.0`; `auth.getSession --token=<token>`
   exchanges the request token for a session key. With `--export`, emits a
   single `export LASTFM_SESSION_KEY=...` line for `eval $(...)` capture in
   bash / zsh / fish. No file persistence.
-- **Write gate** (issue #5): the 12 write methods (`track.scrobble`,
-  `track.scrobbleMany`, `track.love`, `track.unlove`, `track.updateNowPlaying`,
-  `track.addTags`, `track.removeTag`, `track.postTrackScrobble`,
-  `track.postBatchTrackScrobble`, `album.addTags`, `album.removeTag`,
-  `artist.addTags`, `artist.removeTag`) are now reachable. The CLI no longer
-  maintains a `BLOCKED_METHODS` deny-list; the API library's `sk` check is
-  authoritative, and a dedicated catch handler rephrases the resulting
-  `LastFmApiError` into a multi-line actionable message pointing at the
-  auth flow. See `src/session-key-error.ts` and `src/index.ts`.
+- **Write gate** (#5): the 12 write methods (`track.scrobble`, `track.scrobbleMany`,
+  `track.love`, `track.unlove`, `track.updateNowPlaying`, `track.addTags`,
+  `track.removeTag`, `track.postTrackScrobble`, `track.postBatchTrackScrobble`,
+  `album.addTags`, `album.removeTag`, `artist.addTags`, `artist.removeTag`) are
+  now reachable. The CLI no longer maintains a `BLOCKED_METHODS` deny-list; the
+  API library's `sk` check is authoritative, and a dedicated catch handler
+  rephrases the resulting `LastFmApiError` into a multi-line actionable message
+  pointing at the auth flow. See `src/session-key-error.ts` and `src/index.ts`.
+- **Method surface docs** (#6–#11): NAMESPACES_SPEC entries for the 12 previously-
+  undocumented methods. The methods themselves were already callable thanks to
+  the write gate from #5; this PR adds the curated `man` pages and tests so the
+  CLI's `man` / `methods` output matches the client surface.
+
+  - #6 — `artist.getCorrection`, `track.getCorrection` (reads)
+  - #7 — `user.getPersonalTags` with `taggingtype` narrowing (read)
+  - #8 — `album.addTags`, `album.removeTag` (writes, sk)
+  - #9 — `artist.addTags`, `artist.removeTag` (writes, sk)
+  - #10 — `track.addTags`, `track.removeTag`, `track.love`, `track.unlove` (writes, sk)
+  - #11 — `track.updateNowPlaying` (write, sk)
+
+  Each entry includes a brief, full params list, an example, and a note about
+  the auth requirement for writes. See `tests/surface.test.ts` for the
+  coverage assertion.
+
 - README: new "Authentication" section documenting the browser flow, the
   `--export` eval trick, and a clear note that `auth.getMobileSession` is
   gone (removed in `@ansango/lastfm-api@3.3.0`).
 - README: "Write methods (require auth)" section showing the full surface
   and a live `lastfm track love` example after `eval $(... --export)`.
+- README: Examples section extended with 2 new reads (`getPersonalTags`,
+  `getCorrection`) and 2 new writes (`track.love`, `track.addTags`).
 - `man auth` and `man auth.getToken` / `man auth.getSession` entries.
 - `man track.scrobble` / `man track.scrobbleMany` / `man track.postTrackScrobble` /
   `man track.postBatchTrackScrobble` no longer flag "BLOCKED" and include
   working `--export` examples.
+- `man user.getPersonalTags` and `man {artist,track}.getCorrection` (#6, #7).
+- `man {album,artist,track}.{addTags,removeTag}` (#8, #9, #10).
+- `man track.{love,unlove,updateNowPlaying}` (#10, #11).
 
 ### Changed
 
@@ -46,6 +66,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `rephraseSessionKeyError()` for pre-flight API errors (`httpStatus 0`
   with "session key" in the message). All other errors pass through
   unchanged.
+- `src/man.ts`: `NAMESPACES_SPEC.track.brief` no longer says "Scrobbling is
+  blocked" (it never was, post-#5). New brief: "Track lookups, similar
+  tracks, tags, search, and personal mutations (love, tag, scrobble)."
+
+## [0.4.0] — 2026-08-21
 
 ## [0.4.0] — 2026-08-21
 

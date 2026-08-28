@@ -34,6 +34,38 @@ the above provide `LASTFM_API_KEY`, the CLI exits with code 2.
 
 Get an API key at **https://www.last.fm/api/account/create**.
 
+## Authentication
+
+The CLI ships a browser-based auth flow to produce a `LASTFM_SESSION_KEY`
+that downstream write methods (when they land) can use. The session key is
+**never persisted** — the CLI prints it, and you `eval` it into your shell.
+
+```bash
+# 1. Get a request token + the URL to open in a browser
+lastfm auth.getToken
+# → prints:
+#   https://www.last.fm/api/auth/?api_key=...&token=ABCD1234
+#   Request token: ABCD1234
+#   Next: lastfm auth.getSession --token=ABCD1234
+
+# 2. Open the URL, log in, click "Allow access", then either:
+#    - copy the token from the URL bar (any callback URL works), or
+#    - set your Last.fm account's callback URL to http://127.0.0.1:<port>/
+#      and use --callback to auto-catch the redirect (see `lastfm man auth.getSession`)
+
+# 3. Exchange the token for a session key and eval it into your shell:
+eval $(lastfm auth.getSession --token=ABCD1234 --export)
+# → sets $LASTFM_SESSION_KEY in the current shell (printed as one line)
+
+# Verify it works:
+echo "LASTFM_SESSION_KEY=$LASTFM_SESSION_KEY"
+```
+
+`auth.getMobileSession` was removed in `@ansango/lastfm-api@3.3.0` and is
+not available from this CLI. The web flow works for every self-service
+user; the mobile flow required mobile-classified API keys, which the
+public self-service create form does not expose.
+
 ## Usage
 
 ```bash
@@ -47,7 +79,10 @@ lastfm config
 
 ### Namespaces
 
-`user`, `album`, `artist`, `track`, `tag`, `chart`, `geo`, `library`.
+`user`, `album`, `artist`, `track`, `tag`, `chart`, `geo`, `library`, `auth`.
+
+The `auth` namespace carries the browser-based auth flow. See
+[Authentication](#authentication) below.
 
 ### Insights (derived views)
 
@@ -109,6 +144,10 @@ lastfm geo getTopTracks country=spain limit=20
 
 # Global chart
 lastfm chart getTopArtists limit=50
+
+# Auth: get a request token, exchange it for a session key
+lastfm auth.getToken
+eval $(lastfm auth.getSession --token=ABCD1234 --export)
 ```
 
 Periods for `user.getTop*`: `overall | 7day | 1month | 3month | 6month | 12month`.

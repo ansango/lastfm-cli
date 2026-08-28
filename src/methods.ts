@@ -8,6 +8,7 @@ export const NAMESPACES = [
   'chart',
   'geo',
   'library',
+  'auth',
 ] as const;
 
 export type Namespace = (typeof NAMESPACES)[number];

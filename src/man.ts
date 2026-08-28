@@ -546,6 +546,41 @@ export const NAMESPACES_SPEC: Record<string, NamespaceSpec> = {
       },
     },
   },
+  auth: {
+    name: 'auth',
+    brief:
+      'Browser-flow authentication: get a request token, exchange it for a session key, and ' +
+      'eval-export it into your shell. No file persistence.',
+    methods: {
+      getToken: {
+        name: 'getToken',
+        brief: 'Get a request token + the pre-built auth URL to open in a browser.',
+        description:
+          'Step 1 of the browser auth flow. The CLI prints the request token and the ' +
+          '`authUrl` from @ansango/lastfm-api@3.3.0. Open the URL in a browser, log in if ' +
+          'prompted, click "Allow access", then copy the token from the URL bar.',
+        params: [],
+        example: 'lastfm auth.getToken',
+      },
+      getSession: {
+        name: 'getSession',
+        brief: 'Exchange an authorised request token for a session key.',
+        description:
+          'Step 2 of the browser auth flow. Pass the token from the previous step via ' +
+          '`--token=<token>`. With `--export`, emits a single `export LASTFM_SESSION_KEY=...` ' +
+          'line suitable for `eval $(...)` capture in bash / zsh / fish. No file I/O.',
+        params: [
+          {
+            name: 'token',
+            type: 'string',
+            required: true,
+            description: 'Authorised request token from `auth.getToken`.',
+          },
+        ],
+        example: 'lastfm auth.getSession token=ABCD1234',
+      },
+    },
+  },
 };
 
 /** Look up a method spec by `namespace.method`. Returns `null` if not found. */

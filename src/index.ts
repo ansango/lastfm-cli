@@ -6,6 +6,7 @@
  */
 
 import { LastFmApiError } from '@ansango/lastfm-api';
+import { runAuthGetSession, runAuthGetToken } from './auth.js';
 import { loadCredentials } from './env.js';
 import { makeClient } from './client.js';
 import { callMethod, listMethods, parseJsonArg, parseKVArgs } from './dispatch.js';
@@ -80,10 +81,42 @@ async function main(): Promise<void> {
 
     const ns = first;
     const method = second;
+
+    // The `auth.*` commands have a non-JSON output shape (eval-friendly
+    // export lines, human-readable URL banner). Handle them here before
+    // the generic callMethod path so the JSON formatter never touches
+    // them. See src/auth.ts for the per-command behaviour.
+    if (ns === 'auth') {
+      const client = makeClient();
+      if (method === 'getToken') {
+        process.stdout.write(`${await runAuthGetToken(client)}\n`);
+        return;
+      }
+      if (method === 'getSession') {
+        const asExport = rest.includes('--export');
+        // `--token=<value>` (or `token=<value>`) is the only positional arg
+        // accepted. Reject other --flags as a typo-safety net.
+        const knownFlags = new Set(['--export']);
+        for (const arg of rest) {
+          if (arg.startsWith('--') && !knownFlags.has(arg)) {
+            throw new Error(`Unknown flag "${arg}". auth.getSession accepts only --export.`);
+          }
+        }
+        const tokenArg = rest.find((a) => a.startsWith('token='));
+        const token = tokenArg ? tokenArg.slice('token='.length) : '';
+        process.stdout.write(`${await runAuthGetSession(client, token, { export: asExport })}\n`);
+        return;
+      }
+      throw new Error(
+        `Unknown auth method "${method}". Available: auth.getToken, auth.getSession`,
+      );
+    }
+
     const client = makeClient();
     const args = parseJsonArg(rest) ?? parseKVArgs(rest);
     const result = await callMethod(client, ns, method, args);
     process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+    return;
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     process.stderr.write(`ERROR: ${msg}\n`);

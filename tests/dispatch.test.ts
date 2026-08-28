@@ -55,8 +55,12 @@ test('BLOCKED_METHODS also covers the deprecated scrobble aliases', () => {
   assert.ok(BLOCKED_METHODS.has('postBatchTrackScrobble'));
 });
 
-test('NAMESPACES does not include auth (this CLI is read-only)', () => {
-  assert.ok(!NAMESPACES.includes('auth' as never));
+test('NAMESPACES includes auth (the auth foundation from issue #4)', () => {
+  // The auth namespace carries the read-only auth flow (getToken, getSession).
+  // It is intentionally NOT in the BLOCKED_METHODS list — these are the
+	// methods that produce a session key, not write methods that consume one.
+	// See src/auth.ts and src/index.ts for the auth dispatch.
+	assert.ok(NAMESPACES.includes('auth' as never));
 });
 
 test('publicMethods filters out blocked methods', () => {

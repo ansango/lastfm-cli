@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`auth` namespace**: `auth.getToken` returns a request token + the pre-built
+  `authUrl` from `@ansango/lastfm-api@3.3.0`; `auth.getSession --token=<token>`
+  exchanges the request token for a session key. With `--export`, emits a
+  single `export LASTFM_SESSION_KEY=...` line for `eval $(...)` capture in
+  bash / zsh / fish. No file persistence.
+- README: new "Authentication" section documenting the browser flow, the
+  `--export` eval trick, and a clear note that `auth.getMobileSession` is
+  gone (removed in `@ansango/lastfm-api@3.3.0`).
+- `man auth` and `man auth.getToken` / `man auth.getSession` entries.
+
+### Changed
+
+- Dependency: `@ansango/lastfm-api` bumped from `^3.1.3` to `^3.3.0`. The
+  `authUrl` field on the `auth.getToken` response is required by the CLI.
+
 ## [0.4.0] — 2026-08-21
 
 ### Added

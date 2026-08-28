@@ -14,15 +14,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   exchanges the request token for a session key. With `--export`, emits a
   single `export LASTFM_SESSION_KEY=...` line for `eval $(...)` capture in
   bash / zsh / fish. No file persistence.
+- **Write gate** (issue #5): the 12 write methods (`track.scrobble`,
+  `track.scrobbleMany`, `track.love`, `track.unlove`, `track.updateNowPlaying`,
+  `track.addTags`, `track.removeTag`, `track.postTrackScrobble`,
+  `track.postBatchTrackScrobble`, `album.addTags`, `album.removeTag`,
+  `artist.addTags`, `artist.removeTag`) are now reachable. The CLI no longer
+  maintains a `BLOCKED_METHODS` deny-list; the API library's `sk` check is
+  authoritative, and a dedicated catch handler rephrases the resulting
+  `LastFmApiError` into a multi-line actionable message pointing at the
+  auth flow. See `src/session-key-error.ts` and `src/index.ts`.
 - README: new "Authentication" section documenting the browser flow, the
   `--export` eval trick, and a clear note that `auth.getMobileSession` is
   gone (removed in `@ansango/lastfm-api@3.3.0`).
+- README: "Write methods (require auth)" section showing the full surface
+  and a live `lastfm track love` example after `eval $(... --export)`.
 - `man auth` and `man auth.getToken` / `man auth.getSession` entries.
+- `man track.scrobble` / `man track.scrobbleMany` / `man track.postTrackScrobble` /
+  `man track.postBatchTrackScrobble` no longer flag "BLOCKED" and include
+  working `--export` examples.
 
 ### Changed
 
 - Dependency: `@ansango/lastfm-api` bumped from `^3.1.3` to `^3.3.0`. The
   `authUrl` field on the `auth.getToken` response is required by the CLI.
+- `src/methods.ts`: `BLOCKED_METHODS` is removed; replaced by the
+  informational `AUTH_REQUIRED_METHODS` set (used by tests + the
+  `man` system to hint at the auth flow).
+- `src/dispatch.ts`: `callMethod` no longer checks a deny-list. Unknown
+  namespaces / methods still throw with a clear "Unknown method" message.
+- `src/index.ts`: catch handler in `main()` now routes through
+  `rephraseSessionKeyError()` for pre-flight API errors (`httpStatus 0`
+  with "session key" in the message). All other errors pass through
+  unchanged.
 
 ## [0.4.0] — 2026-08-21
 

@@ -1,5 +1,5 @@
 import { LastFmClient } from '@ansango/lastfm-api';
-import { BLOCKED_METHODS, NAMESPACES, type Namespace } from './methods.js';
+import { NAMESPACES, type Namespace } from './methods.js';
 
 /** Parse CLI-style `key=value` args into a plain object. */
 export function parseKVArgs(argv: string[]): Record<string, string> {
@@ -37,10 +37,12 @@ export function parseJsonArg(argv: string[]): Record<string, unknown> | null {
   return null;
 }
 
-/** List methods on a service instance, filtering out blocked ones. */
+/** List methods on a service instance. The CLI exposes every method the
+ *  client has. Write methods are NOT hidden — they're just guarded by
+ *  the API library's `sk` resolution. */
 export function publicMethods(service: Record<string, unknown>): string[] {
   return Object.keys(service)
-    .filter((k) => typeof service[k] === 'function' && !BLOCKED_METHODS.has(k))
+    .filter((k) => typeof service[k] === 'function')
     .sort();
 }
 
@@ -62,7 +64,7 @@ export function listMethods(
   return { namespaces: all };
 }
 
-/** Dispatch a method call. Throws on unknown ns/method or blocked write method. */
+/** Dispatch a method call. Throws on unknown ns/method. */
 export async function callMethod(
   client: LastFmClient,
   ns: Namespace | string,
@@ -71,11 +73,6 @@ export async function callMethod(
 ): Promise<unknown> {
   if (!NAMESPACES.includes(ns as Namespace)) {
     throw new Error(`Unknown namespace "${ns}". Valid: ${NAMESPACES.join(', ')}`);
-  }
-  if (BLOCKED_METHODS.has(method)) {
-    throw new Error(
-      `Method "${ns}.${method}" is an authenticated write operation. This CLI is read-only.`,
-    );
   }
   const service = client[ns as Namespace] as unknown as Record<string, (...a: unknown[]) => Promise<unknown>>;
   const fn = service[method];

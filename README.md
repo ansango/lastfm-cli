@@ -152,18 +152,33 @@ eval $(lastfm auth.getSession --token=ABCD1234 --export)
 
 Periods for `user.getTop*`: `overall | 7day | 1month | 3month | 6month | 12month`.
 
-## Read-only enforcement
+## Write methods (require auth)
 
-`track.scrobble` and `track.scrobbleMany` (the canonical Last.fm names, plus
-their deprecated aliases `track.postTrackScrobble` and
-`track.postBatchTrackScrobble`) exist on the underlying client but require an
-authenticated session. This CLI **does not support writes** — calls to those
-methods (or any future write method we add to the blocklist) return a clear
-error:
+The 12 write methods that `@ansango/lastfm-api@3.3.0` exposes — `track.scrobble`,
+`track.scrobbleMany`, `track.love`, `track.unlove`, `track.updateNowPlaying`,
+`track.addTags`, `track.removeTag`, `track.postTrackScrobble`,
+`track.postBatchTrackScrobble`, `album.addTags`, `album.removeTag`,
+`artist.addTags`, `artist.removeTag` — are all reachable from the CLI as long
+as you have a valid `LASTFM_SESSION_KEY`. Run the auth flow once to get one:
 
+```bash
+lastfm auth.getToken
+# → open the printed URL, authorise, copy the token from the URL bar
+eval $(lastfm auth.getSession --token=<TOKEN> --export)
+
+# Now write methods work:
+lastfm track love artist='Wet Leg' track='pond song'
+lastfm track scrobble artist='Wet Leg' track='pond song' timestamp=$(date +%s)
 ```
-ERROR: Method "track.scrobble" is an authenticated write operation. This CLI is read-only.
-```
+
+If you call a write method without a session key, the CLI rephrases the
+underlying API error into a multi-line actionable message pointing at the
+auth flow — no more "this CLI is read-only".
+
+For a one-off call you can pass `sk=...` inline; the API library checks
+`requestSk` first, then falls back to `LASTFM_SESSION_KEY`, then to
+`config.sessionKey`. See [`@ansango/lastfm-api`](https://github.com/ansango/lastfm-api)
+for the full resolution order.
 
 ## Exit codes
 
@@ -172,7 +187,7 @@ ERROR: Method "track.scrobble" is an authenticated write operation. This CLI is 
 | 0 | success |
 | 1 | generic error (bad args, unknown method, etc.) |
 | 2 | `LASTFM_API_KEY` is not set |
-| 3 | Last.fm API returned an error (rate limit, invalid key, …) |
+| 3 | Last.fm API returned an error (rate limit, invalid key, missing session key, …) |
 
 ## Development
 

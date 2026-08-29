@@ -4,8 +4,7 @@
  * Usage:
  *   lastfm insights now-playing --user NAME [--similar-limit N] [--bio-max-chars N] [--format json|markdown]
  */
-import { callLastfm } from '../lib/cli.js';
-import { buildNowPlaying } from '../lib/now-playing.js';
+import { makeClient } from '../../client.js';
 import { renderNowPlayingMarkdown } from '../lib/render.js';
 import { flag, parseFlags } from '../lib/args.js';
 
@@ -26,12 +25,9 @@ export async function run(argv: string[]): Promise<void> {
   const user = values['user'] as string;
   if (!user) throw new Error('--user is required');
 
-  const caller = (method: string, params: Record<string, string | number>) =>
-    callLastfm(method, params);
-
-  const np = await buildNowPlaying({
+  const client = makeClient();
+  const np = await client.insights.getNowPlaying({
     user,
-    caller,
     similarLimit: values['similar-limit'] as number,
     bioMaxChars: values['bio-max-chars'] as number,
   });

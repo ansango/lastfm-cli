@@ -6,8 +6,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { callLastfm } from '../../../src/insights/lib/cli.js';
-import { buildSummary } from '../../../src/insights/lib/summary.js';
+import { makeClient } from '../../../src/client.js';
 import { renderSummaryMarkdown } from '../../../src/insights/lib/render.js';
 
 const it = process.env['RUN_INTEGRATION'] === '1' && !!process.env['LASTFM_API_KEY']
@@ -15,14 +14,11 @@ const it = process.env['RUN_INTEGRATION'] === '1' && !!process.env['LASTFM_API_K
   : test.skip;
 
 it('integration: summary against the real CLI renders without throwing', async () => {
-  const caller = (method: string, params: Record<string, string | number>) =>
-    callLastfm(method, params);
-
-  const summary = await buildSummary({
+  const client = makeClient();
+  const summary = await client.insights.getSummary({
     user: 'ansango',
     period: 'weekly',
     limit: 5,
-    caller,
   });
 
   // Sanity assertions on the live data — these are user-dependent so we

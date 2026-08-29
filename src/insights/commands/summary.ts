@@ -7,11 +7,10 @@
  * Reads LASTFM_API_KEY from the environment via the standard CLI search
  * order (handled inside `callLastfm`).
  */
-import { callLastfm } from '../lib/cli.js';
-import { buildSummary } from '../lib/summary.js';
+import { makeClient } from '../../client.js';
 import { renderSummaryMarkdown } from '../lib/render.js';
 import { flag, parseFlags } from '../lib/args.js';
-import type { Period } from '../lib/periods.js';
+import type { InsightsPeriod } from '@ansango/lastfm-api/insights';
 
 const USAGE =
   'lastfm insights summary --user NAME --period weekly [--limit N] [--format json|markdown]';
@@ -33,14 +32,11 @@ export async function run(argv: string[]): Promise<void> {
   const user = values['user'] as string;
   if (!user) throw new Error('--user is required');
 
-  const caller = (method: string, params: Record<string, string | number>) =>
-    callLastfm(method, params);
-
-  const summary = await buildSummary({
+  const client = makeClient();
+  const summary = await client.insights.getSummary({
     user,
-    period: values['period'] as Period,
+    period: values['period'] as InsightsPeriod,
     limit: values['limit'] as number,
-    caller,
   });
 
   if ((values['format'] as 'json' | 'markdown') === 'json') {

@@ -3,8 +3,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { callLastfm } from '../../../src/insights/lib/cli.js';
-import { buildNowPlaying } from '../../../src/insights/lib/now-playing.js';
+import { makeClient } from '../../../src/client.js';
 import { renderNowPlayingMarkdown } from '../../../src/insights/lib/render.js';
 
 const it = process.env['RUN_INTEGRATION'] === '1' && !!process.env['LASTFM_API_KEY']
@@ -12,10 +11,8 @@ const it = process.env['RUN_INTEGRATION'] === '1' && !!process.env['LASTFM_API_K
   : test.skip;
 
 it('integration: now-playing against the real CLI renders without throwing', async () => {
-  const caller = (method: string, params: Record<string, string | number>) =>
-    callLastfm(method, params);
-
-  const np = await buildNowPlaying({ user: 'ansango', caller });
+  const client = makeClient();
+  const np = await client.insights.getNowPlaying({ user: 'ansango' });
 
   assert.ok(np.track.name.length > 0);
   assert.ok(np.artist.name.length > 0);

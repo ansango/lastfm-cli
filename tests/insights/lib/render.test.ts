@@ -7,7 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { renderSummaryMarkdown } from '../../../src/insights/lib/render.js';
-import type { Summary } from '../../../src/insights/lib/summary.js';
+import type { InsightsSummaryResponse as Summary } from '@ansango/lastfm-api/insights';
 
 function fakeSummary(): Summary {
   return {

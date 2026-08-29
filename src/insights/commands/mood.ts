@@ -34,21 +34,21 @@ function renderMoodMarkdown(
   period: string,
 ): string {
   const lines: string[] = [];
-  lines.push(`# Mood musical de ${user} — ${period}`);
+  lines.push(`# Musical mood for ${user} — ${period}`);
   lines.push('');
-  lines.push(`**Etiqueta:** ${m.label}`);
-  lines.push(`**Confianza:** ${(m.confidence * 100).toFixed(0)}% (${m.tagSourceCount} tags analizados, fuente principal: ${m.primarySource})`);
+  lines.push(`**Label:** ${m.label}`);
+  lines.push(`**Confidence:** ${(m.confidence * 100).toFixed(0)}% (${m.tagSourceCount} tags analyzed, primary source: ${m.primarySource})`);
   lines.push('');
-  lines.push('## Ejes');
-  lines.push(`Energía   ${moodBar(m.axes.energy)}  ${m.axes.energy.toFixed(2)}  (-1 calmado, +1 intenso)`);
-  lines.push(`Valencia  ${moodBar(m.axes.valence)}  ${m.axes.valence.toFixed(2)}  (-1 sombrío, +1 eufórico)`);
+  lines.push('## Axes');
+  lines.push(`Energy   ${moodBar(m.axes.energy)}  ${m.axes.energy.toFixed(2)}  (-1 calm, +1 intense)`);
+  lines.push(`Valence  ${moodBar(m.axes.valence)}  ${m.axes.valence.toFixed(2)}  (-1 somber, +1 euphoric)`);
   lines.push('');
   if (m.categories.length > 0) {
-    lines.push(`**Categorías dominantes:** ${m.categories.slice(0, 5).join(', ')}`);
+    lines.push(`**Dominant categories:** ${m.categories.slice(0, 5).join(', ')}`);
     lines.push('');
   }
   if (m.confidence < 0.3) {
-    lines.push('_Confianza baja: pocas tags reconocidas. Amplía `--top-artists` o añade más tags manualmente en Last.fm._');
+    lines.push('_Low confidence: few tags recognized. Increase `--top-artists` or add more tags on Last.fm._');
   }
   return lines.join('\n').trimEnd() + '\n';
 }

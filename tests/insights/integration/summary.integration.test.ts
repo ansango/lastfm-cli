@@ -29,6 +29,6 @@ it('integration: summary against the real CLI renders without throwing', async (
   assert.ok(summary.totalScrobbles > 0);
 
   const md = renderSummaryMarkdown(summary);
-  assert.match(md, /Resumen de ansango/);
-  assert.match(md, /Top artistas/);
+  assert.match(md, /Summary for ansango/);
+  assert.match(md, /Top artists/);
 });

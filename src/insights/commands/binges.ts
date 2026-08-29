@@ -26,18 +26,18 @@ function renderBingesMarkdown(
   minLength: number,
 ): string {
   const lines: string[] = [];
-  lines.push(`# Binges de ${res.user} — últimos ${sinceDays} días`);
+  lines.push(`# Binges for ${res.user} — last ${sinceDays} days`);
   lines.push('');
   lines.push(`**Track key:** ${trackKey} · **Min length:** ${minLength}`);
   lines.push('');
   if (res.binges.length === 0) {
-    lines.push('_Sin binges detectados con esos parámetros._');
+    lines.push('_No binges detected with these parameters._');
     return lines.join('\n').trimEnd() + '\n';
   }
   for (const b of res.binges) {
     const dur = Math.round(b.durationSeconds / 60);
     const header = b.track ? `${b.artist} — ${b.track}` : b.artist;
-    lines.push(`## ${header} — ${b.length} plays consecutivos`);
+    lines.push(`## ${header} — ${b.length} consecutive plays`);
     lines.push(`_${fmtDate(b.startUts)} → ${fmtDate(b.endUts)}_ (${dur} min)`);
     lines.push('');
   }

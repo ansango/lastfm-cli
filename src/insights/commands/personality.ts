@@ -13,17 +13,17 @@ const USAGE = 'lastfm insights personality --user NAME [--format json|markdown]'
 function renderPersonalityMarkdown(res: InsightsPersonalityResponse): string {
   const { user, archetype, scores, reasons, features } = res;
   const lines: string[] = [];
-  lines.push(`# Personalidad musical de ${user}`);
+  lines.push(`# Musical personality for ${user}`);
   lines.push('');
   lines.push(`## ${archetype.emoji} ${archetype.name}`);
   lines.push(`_${archetype.blurb}_`);
   lines.push('');
   if (reasons.length > 0) {
-    lines.push('### Por qué');
+    lines.push('### Why');
     for (const r of reasons) lines.push(`- ${r}`);
     lines.push('');
   }
-  lines.push('### Todos los scores');
+  lines.push('### All scores');
   for (const [id, s] of Object.entries(scores)) {
     const num = typeof s === 'number' ? s : 0;
     const pct = (num * 100).toFixed(0);
@@ -31,7 +31,7 @@ function renderPersonalityMarkdown(res: InsightsPersonalityResponse): string {
     lines.push(`- ${id.padEnd(12, ' ')} ${bar} ${pct}%`);
   }
   lines.push('');
-  lines.push(`Datos: ${features.totalScrobbles} scrobbles en 30d · ${features.uniqueArtists} artistas únicos`);
+  lines.push(`Data: ${features.totalScrobbles} scrobbles in 30d · ${features.uniqueArtists} unique artists`);
   return lines.join('\n').trimEnd() + '\n';
 }
 

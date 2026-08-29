@@ -17,19 +17,19 @@ function renderMarkdown(
   sinceDays: number,
 ): string {
   const lines: string[] = [];
-  lines.push(`# Descubrimientos de ${user} — últimos ${sinceDays} días`);
+  lines.push(`# Discoveries for ${user} — last ${sinceDays} days`);
   lines.push('');
-  lines.push(`**Baseline:** ${res.baselineSize} artistas en tu historial global.`);
-  lines.push(`**Nuevos en la ventana:** ${res.discoveries.length}`);
+  lines.push(`**Baseline:** ${res.baselineSize} artists in your global history.`);
+  lines.push(`**New in window:** ${res.discoveries.length}`);
   lines.push('');
   if (res.discoveries.length === 0) {
-    lines.push('_No has descubierto artistas nuevos en esta ventana._');
+    lines.push('_No new artists discovered in this window._');
     return lines.join('\n').trimEnd() + '\n';
   }
-  lines.push('## Artistas nuevos');
+  lines.push('## New artists');
   for (const a of res.discoveries) {
     const d = new Date(a.firstSeen * 1000);
-    lines.push(`- **${a.name}** — primer scrobble el ${d.toISOString().slice(0, 10)}`);
+    lines.push(`- **${a.name}** — first scrobbled on ${d.toISOString().slice(0, 10)}`);
   }
   return lines.join('\n').trimEnd() + '\n';
 }

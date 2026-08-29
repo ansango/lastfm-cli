@@ -13,28 +13,28 @@ import type { InsightsHoursResponse } from '@ansango/lastfm-api/insights';
 const USAGE =
   'lastfm insights hours --user NAME [--since 30d|7d|90d|365d] [--format json|markdown]';
 
-const WEEKDAY_LABELS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const WEEKDAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function renderHistogramMarkdown(h: InsightsHoursResponse, user: string, sinceDays: number): string {
   const lines: string[] = [];
-  lines.push(`# Patrón de escucha de ${user} — últimos ${sinceDays} días`);
+  lines.push(`# Listening pattern for ${user} — last ${sinceDays} days`);
   lines.push('');
-  lines.push(`**Total de scrobbles en la ventana:** ${h.total.toLocaleString('es-ES')}`);
+  lines.push(`**Total scrobbles in window:** ${h.total.toLocaleString('en-US')}`);
   lines.push('');
   if (h.total === 0) {
-    lines.push('_Sin datos en esta ventana._');
+    lines.push('_No data in this window._');
     return lines.join('\n').trimEnd() + '\n';
   }
 
   if (h.peakHour !== null) {
-    lines.push(`**Hora pico:** las ${String(h.peakHour).padStart(2, '0')}:00 (${h.peakHourCount} scrobbles)`);
+    lines.push(`**Peak hour:** ${String(h.peakHour).padStart(2, '0')}:00 (${h.peakHourCount} scrobbles)`);
   }
   if (h.peakWeekday !== null && h.peakWeekdayLabel) {
-    lines.push(`**Día pico:** ${h.peakWeekdayLabel} (${h.peakWeekdayCount} scrobbles)`);
+    lines.push(`**Peak day:** ${h.peakWeekdayLabel} (${h.peakWeekdayCount} scrobbles)`);
   }
   lines.push('');
 
-  lines.push('## Horas más activas');
+  lines.push('## Most active hours');
   const hourEntries = h.byHour
     .map((count, hour) => ({ hour, count }))
     .filter((x) => x.count > 0)
@@ -46,7 +46,7 @@ function renderHistogramMarkdown(h: InsightsHoursResponse, user: string, sinceDa
   }
   lines.push('');
 
-  lines.push('## Por día de la semana');
+  lines.push('## By day of the week');
   const maxWd = Math.max(...h.byWeekday);
   for (let i = 0; i < 7; i++) {
     const count = h.byWeekday[i] ?? 0;

@@ -34,39 +34,39 @@ function renderMarkdown(
   kind: 'artist' | 'track',
 ): string {
   const lines: string[] = [];
-  lines.push(`# Tendencias de ${user} — ${kind}s (${now} vs ${compare})`);
+  lines.push(`# Trends for ${user} — ${kind}s (${now} vs ${compare})`);
   lines.push('');
 
   if (diff.risers.length > 0) {
-    lines.push(`## Subiendo (${diff.risers.length})`);
+    lines.push(`## Rising (${diff.risers.length})`);
     for (const r of diff.risers) {
       const arrow = r.deltaRank > 0 ? `↑${r.deltaRank}` : '↑';
-      lines.push(`- **${r.name}** — ahora ${r.playcount} plays (${arrow} en rank)`);
+      lines.push(`- **${r.name}** — now ${r.playcount} plays (${arrow} in rank)`);
     }
     lines.push('');
   }
 
   if (diff.fallers.length > 0) {
-    lines.push(`## Bajando (${diff.fallers.length})`);
+    lines.push(`## Falling (${diff.fallers.length})`);
     for (const f of diff.fallers) {
       const arrow = f.deltaRank < 0 ? `↓${Math.abs(f.deltaRank)}` : '↓';
-      lines.push(`- **${f.name}** — ahora ${f.playcount} plays (${arrow} en rank)`);
+      lines.push(`- **${f.name}** — now ${f.playcount} plays (${arrow} in rank)`);
     }
     lines.push('');
   }
 
   if (diff.newcomers.length > 0) {
-    lines.push(`## Nuevos (${diff.newcomers.length})`);
+    lines.push(`## Newcomers (${diff.newcomers.length})`);
     for (const n of diff.newcomers) {
-      lines.push(`- **${n.name}** — ${n.playcount} plays (entra directo al top)`);
+      lines.push(`- **${n.name}** — ${n.playcount} plays (straight to top)`);
     }
     lines.push('');
   }
 
   if (diff.departures.length > 0) {
-    lines.push(`## Desaparecen (${diff.departures.length})`);
+    lines.push(`## Departures (${diff.departures.length})`);
     for (const d of diff.departures) {
-      lines.push(`- ~~${d.name}~~ (tenía ${d.playcount} plays en el período anterior)`);
+      lines.push(`- ~~${d.name}~~ (had ${d.playcount} plays in previous period)`);
     }
     lines.push('');
   }
@@ -77,7 +77,7 @@ function renderMarkdown(
     diff.newcomers.length === 0 &&
     diff.departures.length === 0
   ) {
-    lines.push('_Sin cambios significativos entre los dos períodos._');
+    lines.push('_No significant changes between the two periods._');
   }
 
   return lines.join('\n').trimEnd() + '\n';

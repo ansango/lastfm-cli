@@ -6,6 +6,8 @@ import { EXIT } from './methods.js';
 export interface CliConfig {
   apiKey: string;
   baseUrl: string;
+  sharedSecret?: string;
+  sessionKey?: string;
 }
 
 /** Resolve config from env. Exits 2 with an actionable message if apiKey missing. */
@@ -27,6 +29,8 @@ export function requireConfig(): CliConfig {
   return {
     apiKey,
     baseUrl: process.env.LASTFM_BASE_URL || DEFAULT_BASE_URL,
+    sharedSecret: process.env.LASTFM_SHARED_SECRET || process.env.LASTFM_SECRET,
+    sessionKey: process.env.LASTFM_SESSION_KEY || process.env.LASTFM_SK,
   };
 }
 

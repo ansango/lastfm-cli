@@ -31,19 +31,19 @@ function renderCompareMarkdown(
   lines.push('');
   const pct = (r.jaccard * 100).toFixed(1);
   const verdict =
-    r.jaccard > 0.6 ? 'gemelos musicales' :
-    r.jaccard > 0.3 ? 'mucho en común' :
-    r.jaccard > 0.1 ? 'algo de solape' :
-                      'mundos distintos';
-  lines.push(`**Similitud (Jaccard):** ${pct}% — ${verdict}`);
+    r.jaccard > 0.6 ? 'musical twins' :
+    r.jaccard > 0.3 ? 'a lot in common' :
+    r.jaccard > 0.1 ? 'some overlap' :
+                      'different worlds';
+  lines.push(`**Similarity (Jaccard):** ${pct}% — ${verdict}`);
   lines.push('');
-  lines.push(`- Top artistas de **${a}**: ${r.userACount}`);
-  lines.push(`- Top artistas de **${b}**: ${r.userBCount}`);
-  lines.push(`- En común: **${r.sharedCount}**`);
-  lines.push(`- Solo en ${a}: ${r.onlyUserA.length} · solo en ${b}: ${r.onlyUserB.length}`);
+  lines.push(`- Top artists of **${a}**: ${r.userACount}`);
+  lines.push(`- Top artists of **${b}**: ${r.userBCount}`);
+  lines.push(`- In common: **${r.sharedCount}**`);
+  lines.push(`- Only on ${a}: ${r.onlyUserA.length} · only on ${b}: ${r.onlyUserB.length}`);
   lines.push('');
   if (r.sharedArtists.length > 0) {
-    lines.push('## Artistas en común (top por min plays)');
+    lines.push('## Artists in common (top by min plays)');
     const top = r.sharedArtists.slice(0, 15);
     for (const entry of top) {
       lines.push(`- **${entry.name}** (${entry.weight} plays)`);
@@ -51,17 +51,17 @@ function renderCompareMarkdown(
     lines.push('');
   }
   if (r.onlyUserA.length > 0) {
-    lines.push(`## Solo en ${a}`);
+    lines.push(`## Only on ${a}`);
     const top = r.onlyUserA.slice(0, 10);
     for (const name of top) lines.push(`- ${name}`);
-    if (r.onlyUserA.length > 10) lines.push(`- … (+${r.onlyUserA.length - 10} más)`);
+    if (r.onlyUserA.length > 10) lines.push(`- … (+${r.onlyUserA.length - 10} more)`);
     lines.push('');
   }
   if (r.onlyUserB.length > 0) {
-    lines.push(`## Solo en ${b}`);
+    lines.push(`## Only on ${b}`);
     const top = r.onlyUserB.slice(0, 10);
     for (const name of top) lines.push(`- ${name}`);
-    if (r.onlyUserB.length > 10) lines.push(`- … (+${r.onlyUserB.length - 10} más)`);
+    if (r.onlyUserB.length > 10) lines.push(`- … (+${r.onlyUserB.length - 10} more)`);
     lines.push('');
   }
   return lines.join('\n').trimEnd() + '\n';

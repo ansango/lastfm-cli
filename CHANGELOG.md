@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-08-29
+
+### Changed
+
+- **Insights architectural refactor** (#19):
+  - Upgraded `@ansango/lastfm-api` to `^3.6.0` (#20).
+  - Delegated all 9 insights commands (`summary`, `now-playing`, `hours`, `binges`, `trends`, `discoveries`, `mood`, `personality`, `compare`) directly to `client.insights.*` (#21–#24).
+  - Removed duplicate analytical and psychometric calculation modules from `src/insights/lib/*` and duplicate unit tests (-4,500 lines) (#25).
+  - Preserved full terminal formatting and markdown rendering.
+
 ## [0.5.0] — 2026-08-28
 
 ### Added

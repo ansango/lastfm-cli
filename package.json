@@ -26,7 +26,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@ansango/lastfm-api": "^3.3.0",
+    "@ansango/lastfm-api": "^3.6.0",
     "dotenv": "^17.4.2"
   },
   "devDependencies": {

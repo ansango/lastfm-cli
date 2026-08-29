@@ -8,52 +8,26 @@
  * Examples:
  *   lastfm insights trends --user ansango --now weekly --compare monthly
  *   lastfm insights trends --user ansango --now monthly --compare 3month --kind track
- *
- * Mapping: weekly→7day, monthly→1month, 3month→3month.
  */
-import { callLastfm } from '../lib/cli.js';
-import { diffRankings, type Ranked } from '../lib/trends.js';
-import { periodToLastfm } from '../lib/periods.js';
+import { makeClient } from '../../client.js';
 import { flag, parseFlags } from '../lib/args.js';
-
-type PeriodArg = 'weekly' | 'monthly' | '3month' | '6month' | '12month';
+import type { InsightsTrendsResponse } from '@ansango/lastfm-api/insights';
 
 const USAGE =
   'lastfm insights trends --user NAME [--now weekly|monthly] [--compare weekly|monthly] ' +
   '[--kind artist|track] [--limit 10] [--format json|markdown]';
 
-function argToLastfm(arg: PeriodArg): string {
-  if (arg === 'weekly') return periodToLastfm('weekly');
-  if (arg === 'monthly') return periodToLastfm('monthly');
-  if (arg === '3month') return '3month';
-  if (arg === '6month') return '6month';
-  return '12month';
-}
-
-async function fetchTop(
-  user: string,
-  kind: 'artist' | 'track',
-  period: string,
-  limit: number,
-): Promise<Ranked[]> {
-  const method = kind === 'artist' ? 'user.getTopArtists' : 'user.getTopTracks';
-  const wrapper = kind === 'artist' ? 'topartists' : 'toptracks';
-  const itemKey = kind === 'artist' ? 'artist' : 'track';
-  const raw = (await callLastfm(method, { user, period, limit })) as Record<string, Record<string, unknown[]>>;
-  const arr = raw?.[wrapper]?.[itemKey];
-  if (!Array.isArray(arr)) return [];
-  return arr
-    .map((x: unknown) => {
-      const obj = x as { name?: unknown; playcount?: unknown };
-      if (typeof obj.name !== 'string' || obj.name.length === 0) return null;
-      const pc = Number(obj.playcount ?? 0);
-      return { name: obj.name, playcount: pc };
-    })
-    .filter((x): x is Ranked => x !== null);
+function toPeriod(p: string): 'overall' | '7day' | '1month' | '3month' | '6month' | '12month' {
+  if (p === 'weekly') return '7day';
+  if (p === 'monthly') return '1month';
+  if (p === '7day' || p === '1month' || p === '3month' || p === '6month' || p === '12month' || p === 'overall') {
+    return p;
+  }
+  return '7day';
 }
 
 function renderMarkdown(
-  diff: ReturnType<typeof diffRankings>,
+  diff: InsightsTrendsResponse,
   user: string,
   now: string,
   compare: string,
@@ -127,17 +101,18 @@ export async function run(argv: string[]): Promise<void> {
 
   const kind = values['kind'] as 'artist' | 'track';
   const limit = values['limit'] as number;
-  const nowArg = values['now'] as PeriodArg;
-  const compareArg = values['compare'] as PeriodArg;
-  const nowLastfm = argToLastfm(nowArg);
-  const compareLastfm = argToLastfm(compareArg);
+  const nowArg = values['now'] as string;
+  const compareArg = values['compare'] as string;
 
-  const [current, previous] = await Promise.all([
-    fetchTop(user, kind, nowLastfm, 30),
-    fetchTop(user, kind, compareLastfm, 30),
-  ]);
-
-  const diff = diffRankings(current, previous, { maxResults: limit });
+  const client = makeClient();
+  const target = kind === 'artist' ? ('artists' as const) : ('tracks' as const);
+  const diff = await client.insights.getTrends({
+    user,
+    target,
+    currentPeriod: toPeriod(nowArg),
+    previousPeriod: toPeriod(compareArg),
+    limit,
+  });
 
   const format = values['format'] as 'json' | 'markdown';
   if (format === 'json') {

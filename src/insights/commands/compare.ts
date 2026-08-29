@@ -5,27 +5,25 @@
  *   lastfm insights compare --user-a NAME --user-b NAME [--period overall|weekly|monthly|3month|6month|12month]
  *                            [--limit 50] [--format json|markdown]
  */
-import { callLastfm } from '../lib/cli.js';
-import { compareArtists, type NamedEntry } from '../lib/compare.js';
+import { makeClient } from '../../client.js';
 import { flag, parseFlags } from '../lib/args.js';
-
-type ComparePeriod = 'overall' | 'weekly' | 'monthly' | '3month' | '6month' | '12month';
+import type { InsightsCompareResponse } from '@ansango/lastfm-api/insights';
 
 const USAGE =
   'lastfm insights compare --user-a NAME --user-b NAME ' +
   '[--period overall|weekly|monthly|3month|6month|12month] [--limit 50] [--format json|markdown]';
 
-async function fetchTop(user: string, period: string, limit: number): Promise<NamedEntry[]> {
-  const raw = (await callLastfm('user.getTopArtists', {
-    user, period, limit,
-  })) as { topartists?: { artist?: Array<{ name?: string; playcount?: string | number }> } };
-  return (raw?.topartists?.artist ?? [])
-    .map((a) => ({ name: a.name ?? '', playcount: Number(a.playcount ?? 0) }))
-    .filter((a) => a.name.length > 0);
+function toComparePeriod(p: string): 'overall' | '7day' | '1month' | '3month' | '6month' | '12month' {
+  if (p === 'weekly') return '7day';
+  if (p === 'monthly') return '1month';
+  if (p === '7day' || p === '1month' || p === '3month' || p === '6month' || p === '12month' || p === 'overall') {
+    return p;
+  }
+  return 'overall';
 }
 
 function renderCompareMarkdown(
-  r: ReturnType<typeof compareArtists>,
+  r: InsightsCompareResponse,
   a: string, b: string,
 ): string {
   const lines: string[] = [];
@@ -39,31 +37,31 @@ function renderCompareMarkdown(
                       'mundos distintos';
   lines.push(`**Similitud (Jaccard):** ${pct}% — ${verdict}`);
   lines.push('');
-  lines.push(`- Top artistas de **${a}**: ${r.aCount}`);
-  lines.push(`- Top artistas de **${b}**: ${r.bCount}`);
-  lines.push(`- En común: **${r.intersection.length}**`);
-  lines.push(`- Solo en ${a}: ${r.onlyA.length} · solo en ${b}: ${r.onlyB.length}`);
+  lines.push(`- Top artistas de **${a}**: ${r.userACount}`);
+  lines.push(`- Top artistas de **${b}**: ${r.userBCount}`);
+  lines.push(`- En común: **${r.sharedCount}**`);
+  lines.push(`- Solo en ${a}: ${r.onlyUserA.length} · solo en ${b}: ${r.onlyUserB.length}`);
   lines.push('');
-  if (r.rankedIntersection.length > 0) {
+  if (r.sharedArtists.length > 0) {
     lines.push('## Artistas en común (top por min plays)');
-    const top = r.rankedIntersection.slice(0, 15);
+    const top = r.sharedArtists.slice(0, 15);
     for (const entry of top) {
-      lines.push(`- **${entry.name}** (${entry.playcount} plays)`);
+      lines.push(`- **${entry.name}** (${entry.weight} plays)`);
     }
     lines.push('');
   }
-  if (r.onlyA.length > 0) {
+  if (r.onlyUserA.length > 0) {
     lines.push(`## Solo en ${a}`);
-    const top = r.onlyA.slice(0, 10);
+    const top = r.onlyUserA.slice(0, 10);
     for (const name of top) lines.push(`- ${name}`);
-    if (r.onlyA.length > 10) lines.push(`- … (+${r.onlyA.length - 10} más)`);
+    if (r.onlyUserA.length > 10) lines.push(`- … (+${r.onlyUserA.length - 10} más)`);
     lines.push('');
   }
-  if (r.onlyB.length > 0) {
+  if (r.onlyUserB.length > 0) {
     lines.push(`## Solo en ${b}`);
-    const top = r.onlyB.slice(0, 10);
+    const top = r.onlyUserB.slice(0, 10);
     for (const name of top) lines.push(`- ${name}`);
-    if (r.onlyB.length > 10) lines.push(`- … (+${r.onlyB.length - 10} más)`);
+    if (r.onlyUserB.length > 10) lines.push(`- … (+${r.onlyUserB.length - 10} más)`);
     lines.push('');
   }
   return lines.join('\n').trimEnd() + '\n';
@@ -73,10 +71,7 @@ export async function run(argv: string[]): Promise<void> {
   const { values, help } = parseFlags(argv, {
     'user-a': flag.string(),
     'user-b': flag.string(),
-    period: flag.enum<ComparePeriod>(
-      ['overall', 'weekly', 'monthly', '3month', '6month', '12month'],
-      { default: 'overall', aliases: ['-p'] },
-    ),
+    period: flag.string({ default: 'overall', aliases: ['-p'] }),
     limit: flag.number({ default: 50, aliases: ['-l'] }),
     format: flag.enum(['json', 'markdown'], { default: 'markdown', aliases: ['-f'] }),
   });
@@ -89,12 +84,15 @@ export async function run(argv: string[]): Promise<void> {
   if (!userA || !userB) throw new Error('--user-a and --user-b are required');
 
   const limit = values['limit'] as number;
-  const period = values['period'] as ComparePeriod;
-  const [a, b] = await Promise.all([
-    fetchTop(userA, period, limit),
-    fetchTop(userB, period, limit),
-  ]);
-  const r = compareArtists(a, b);
+  const period = values['period'] as string;
+
+  const client = makeClient();
+  const r = await client.insights.compareUsers({
+    userA,
+    userB,
+    period: toComparePeriod(period),
+    limit,
+  });
 
   const format = values['format'] as 'json' | 'markdown';
   if (format === 'json') {

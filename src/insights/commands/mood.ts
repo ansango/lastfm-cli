@@ -1,32 +1,37 @@
 /**
  * insights mood — derive a mood profile from the user's listening context.
  *
- * Strategy: cross the user's own topTags (often sparse) with the top tags
- * of their top artists. The merged tag bag feeds the pure classifier.
- *
  * Usage:
  *   lastfm insights mood --user NAME [--period weekly] [--top-artists 10]
  *                        [--format json|markdown]
  */
-import { callLastfm } from '../lib/cli.js';
-import { buildMoodProfile } from '../lib/mood-composer.js';
-import type { MoodPeriod } from '../lib/mood-composer.js';
+import { makeClient } from '../../client.js';
 import { flag, parseFlags } from '../lib/args.js';
+import type { InsightsMoodResponse } from '@ansango/lastfm-api/insights';
 
 const USAGE =
   'lastfm insights mood --user NAME [--period weekly] [--top-artists 10] [--format json|markdown]';
 
+function toMoodPeriod(p: string): 'overall' | '7day' | '1month' | '3month' | '6month' | '12month' {
+  if (p === 'weekly') return '7day';
+  if (p === 'monthly') return '1month';
+  if (p === '7day' || p === '1month' || p === '3month' || p === '6month' || p === '12month' || p === 'overall') {
+    return p;
+  }
+  return '7day';
+}
+
 function moodBar(v: number): string {
-  const pos = Math.round((v + 1) * 5);
+  const pos = Math.max(0, Math.min(9, Math.round((v + 1) * 4.5)));
   const chars = '·'.repeat(10).split('');
   chars[pos] = '│';
   return chars.join('');
 }
 
 function renderMoodMarkdown(
-  m: Awaited<ReturnType<typeof buildMoodProfile>>,
+  m: InsightsMoodResponse,
   user: string,
-  period: MoodPeriod,
+  period: string,
 ): string {
   const lines: string[] = [];
   lines.push(`# Mood musical de ${user} — ${period}`);
@@ -62,20 +67,18 @@ export async function run(argv: string[]): Promise<void> {
   const user = values['user'] as string;
   if (!user) throw new Error('--user is required');
 
-  const caller = (method: string, params: Record<string, string | number>) =>
-    callLastfm(method, params);
-
-  const m = await buildMoodProfile({
+  const periodArg = values['period'] as string;
+  const client = makeClient();
+  const m = await client.insights.getMood({
     user,
-    period: values['period'] as MoodPeriod,
-    caller,
-    topArtists: values['top-artists'] as number,
+    period: toMoodPeriod(periodArg),
+    topArtistsLimit: values['top-artists'] as number,
   });
 
   const format = values['format'] as 'json' | 'markdown';
   if (format === 'json') {
     process.stdout.write(JSON.stringify(m, null, 2) + '\n');
   } else {
-    process.stdout.write(renderMoodMarkdown(m, user, values['period'] as MoodPeriod));
+    process.stdout.write(renderMoodMarkdown(m, user, periodArg));
   }
 }

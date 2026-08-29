@@ -4,8 +4,10 @@
  * Pure string transformation. The LLM-friendly version — keeps numbers and
  * ordering deterministic, drops API noise (mbid, image arrays, URL soup).
  */
-import type { Summary } from './summary.js';
-import type { NowPlaying } from './now-playing.js';
+import type {
+  InsightsSummaryResponse as Summary,
+  InsightsNowPlayingResponse as NowPlaying,
+} from '@ansango/lastfm-api/insights';
 
 function pad(n: number): string {
   return n.toString().padStart(2, ' ');

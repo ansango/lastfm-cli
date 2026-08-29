@@ -20,7 +20,9 @@ export function generalHelp(): string {
     ``,
     `Derived views (run \`lastfm insights <subcommand> --help\` for flags):`,
     `  summary, now-playing, hours, discoveries, trends, mood,`,
-    `  personality, compare, binges`,
+    `  personality, compare, binges, obscurity, streaks, heatmap,`,
+    `  album-habits, genres, genre-evolution, recommendations,`,
+    `  bridge, obsessions, forgotten, group-compare`,
     ``,
     `Examples:`,
     `  lastfm artist getInfo artist=Radiohead`,
@@ -47,14 +49,25 @@ export function namespaceHelp(ns: string, client?: LastFmClient): string {
   } else {
     // Fallback when we can't instantiate the client (e.g. no apiKey).
     const fallback: Record<string, string[]> = {
-      user: ['getInfo', 'getFriends', 'getRecentTracks', 'getTopAlbums', 'getTopArtists', 'getTopTags', 'getTopTracks', 'getLovedTracks', 'getWeeklyChartList', 'getWeeklyArtistChart', 'getWeeklyAlbumChart', 'getWeeklyTrackChart'],
-      album: ['getInfo', 'getTags', 'getTopTags', 'search'],
-      artist: ['getInfo', 'getSimilar', 'getTags', 'getTopAlbums', 'getTopTags', 'getTopTracks', 'search'],
-      track: ['getInfo', 'getSimilar', 'getTags', 'getTopTags', 'search'],
+      user: ['getInfo', 'getFriends', 'getRecentTracks', 'getTopAlbums', 'getTopArtists', 'getTopTags', 'getTopTracks', 'getLovedTracks', 'getWeeklyChartList', 'getWeeklyArtistChart', 'getWeeklyAlbumChart', 'getWeeklyTrackChart', 'getPersonalTags'],
+      album: ['getInfo', 'getTags', 'getTopTags', 'search', 'addTags', 'removeTag'],
+      artist: ['getInfo', 'getSimilar', 'getTags', 'getTopAlbums', 'getTopTags', 'getTopTracks', 'search', 'getCorrection', 'addTags', 'removeTag'],
+      track: ['getInfo', 'getSimilar', 'getTags', 'getTopTags', 'search', 'getCorrection', 'scrobble', 'love', 'unlove', 'updateNowPlaying', 'addTags', 'removeTag'],
       tag: ['getInfo', 'getSimilar', 'getTopArtists', 'getTopAlbums', 'getTopTracks', 'getTopTags', 'getWeeklyChartList'],
       chart: ['getTopArtists', 'getTopTracks', 'getTopTags'],
       geo: ['getTopArtists', 'getTopTracks'],
       library: ['getArtists'],
+      auth: ['getToken', 'getSession'],
+      insights: [
+        'getSummary', 'getNowPlaying', 'getHoursHistogram', 'getBinges', 'getTrends',
+        'getDiscoveries', 'getMood', 'getPersonality', 'compareUsers', 'getObscurityScore',
+        'getForgottenFavorites', 'getObsessions', 'getListeningStreaks', 'getListeningHeatmap',
+        'getAlbumHabits', 'getGenreBreakdown', 'getGenreEvolution', 'getSmartRecommendations',
+        'getBridgeArtists', 'compareTasteGroup',
+      ],
+      reports: ['getWrapped', 'getMilestones', 'getMonthlyDigest'],
+      playlists: ['generate'],
+      exporter: ['exportScrobbles', 'exportLovedTracks', 'exportLibrary'],
     };
     methods = fallback[ns] ?? [];
   }

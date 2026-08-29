@@ -5,6 +5,7 @@
  * dotenv (search order: $LASTFM_CLI_ENV_FILE > ./env > ~/.lastfm-cli/.env).
  */
 
+import { readFileSync } from 'node:fs';
 import { LastFmApiError } from '@ansango/lastfm-api';
 import { runAuthGetSession, runAuthGetToken } from './auth.js';
 import { loadCredentials } from './env.js';
@@ -26,6 +27,16 @@ import {
 import { handleInsights } from './insights/dispatcher.js';
 import { EXIT, NAMESPACES } from './methods.js';
 
+export function getCliVersion(): string {
+  try {
+    const pkgUrl = new URL('../package.json', import.meta.url);
+    const pkg = JSON.parse(readFileSync(pkgUrl, 'utf-8'));
+    return pkg.version ?? '0.0.0';
+  } catch {
+    return '0.6.1';
+  }
+}
+
 async function main(): Promise<void> {
   loadCredentials();
   const argv = process.argv.slice(2);
@@ -33,6 +44,11 @@ async function main(): Promise<void> {
   const rest = argv.slice(2);
 
   try {
+    if (first === '-v' || first === '--version' || first === 'version') {
+      process.stdout.write(`@ansango/lastfm-cli v${getCliVersion()}\n`);
+      return;
+    }
+
     if (!first || first === '-h' || first === '--help') {
       process.stdout.write(generalHelp() + '\n');
       return;

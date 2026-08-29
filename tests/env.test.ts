@@ -1,9 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCredentials, parseEnvFile } from '../src/env.js';
+import { getCliVersion } from '../src/index.js';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+
+test('getCliVersion: returns a valid semver version string', () => {
+  const v = getCliVersion();
+  assert.match(v, /^\d+\.\d+\.\d+/);
+});
 
 test('parseEnvFile: returns empty object for missing file', () => {
   assert.deepEqual(parseEnvFile('/nonexistent/.env'), {});

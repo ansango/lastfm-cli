@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] — 2026-08-29
+
+### Added
+
+- **Real-Time Watcher command (`lastfm watch`)**:
+  - Live scrobble polling and now-playing monitor with graceful signal handling (`SIGINT`/`SIGTERM`).
+  - Supports `--user`, `--interval` (seconds), `--idle` (minutes), and `--format text|json`.
+  - Emits real-time notifications for `nowPlaying`, `nowPlayingEnd`, `scrobble`, and `idle` states.
+- **High-Level Reports CLI (`lastfm reports <subcommand>`)**:
+  - `wrapped`: Year-in-review / wrapped listening summary, seasonal soundtracks & busy day breakdown.
+  - `milestones`: Historical scrobble milestone tracker & projected date for next milestone.
+  - `monthly` (or `digest`): Monthly listening bulletin with comparative growth against previous month.
+- **Smart Playlists CLI (`lastfm playlists <subcommand>`)**:
+  - `generate`: Generates algorithmic playlists (`time-capsule`, `deep-cuts`, `heavy-rotation`, `discovery-radar`).
+  - `export-m3u` & `export-csv`: Formats and exports playlist track collections to standard files or stdout.
+- **Bulk Exporter CLI (`lastfm exporter <subcommand>` / `lastfm export`)**:
+  - `scrobbles`: High-fidelity history exporter supporting JSON, JSONL, CSV, and ListenBrainz formats with UTS checkpointing.
+  - `loved`: Bulk exports loved tracks in JSON or CSV.
+  - `library`: Bulk exports artist libraries with playcounts in JSON or CSV.
+
 ## [0.7.0] — 2026-08-29
 
 ### Added

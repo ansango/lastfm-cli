@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] — 2026-08-29
+
+### Added & Fixed
+
+- **English CLI output localization** (#27): Localized all command outputs, markdown headers, and terminal labels in the `insights` namespace to English.
+- **Transparent authentication config resolution** (#28): `requireConfig()` now automatically passes `sharedSecret` and `sessionKey` from environment variables (`LASTFM_SHARED_SECRET`, `LASTFM_SESSION_KEY`) to `LastFmClient`, enabling seamless write method execution (`track.love`, `track.scrobble`, `album.addTags`, etc.).
+
 ## [0.6.0] — 2026-08-29
 
 ### Changed

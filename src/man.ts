@@ -738,6 +738,280 @@ export const NAMESPACES_SPEC: Record<string, NamespaceSpec> = {
       },
     },
   },
+  insights: {
+    name: 'insights',
+    brief: 'Higher-level analytical insights, statistical diversity, psychometrics and behavioral metrics.',
+    methods: {
+      getSummary: {
+        name: 'getSummary',
+        brief: 'Aggregated period summary with Shannon diversity entropy.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'period', type: 'string', required: false, description: 'Time window (weekly, monthly, overall).' },
+          { name: 'limit', type: 'number', required: false, description: 'Max items per category (default 5).' },
+        ],
+        example: 'lastfm insights getSummary user=ansango period=7day',
+      },
+      getNowPlaying: {
+        name: 'getNowPlaying',
+        brief: 'Enriched now playing scrobble with artist bio and similar recommendations.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'similarLimit', type: 'number', required: false, description: 'Max similar artists (default 3).' },
+          { name: 'bioMaxChars', type: 'number', required: false, description: 'Max bio characters (default 320).' },
+        ],
+        example: 'lastfm insights getNowPlaying user=ansango',
+      },
+      getHoursHistogram: {
+        name: 'getHoursHistogram',
+        brief: 'Diurnal and weekly listening histogram with peak times.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'sinceDays', type: 'number', required: false, description: 'Lookback window in days (default 30).' },
+        ],
+        example: 'lastfm insights getHoursHistogram user=ansango sinceDays=30',
+      },
+      getBinges: {
+        name: 'getBinges',
+        brief: 'Detect single-artist or track binge sessions.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'sinceDays', type: 'number', required: false, description: 'Lookback in days (default 30).' },
+          { name: 'minLength', type: 'number', required: false, description: 'Minimum consecutive plays (default 3).' },
+          { name: 'trackKey', type: 'string', required: false, description: 'Key by "artist" or "track" (default artist).' },
+        ],
+        example: 'lastfm insights getBinges user=ansango sinceDays=30 minLength=3',
+      },
+      getTrends: {
+        name: 'getTrends',
+        brief: 'Ranking differential comparison between two periods.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'target', type: 'string', required: false, description: '"artists" or "tracks" (default artists).' },
+          { name: 'currentPeriod', type: 'string', required: false, description: 'Current period (default 7day).' },
+          { name: 'previousPeriod', type: 'string', required: false, description: 'Comparison period (default 1month).' },
+        ],
+        example: 'lastfm insights getTrends user=ansango currentPeriod=7day previousPeriod=1month',
+      },
+      getDiscoveries: {
+        name: 'getDiscoveries',
+        brief: 'Fresh artist discoveries in recent window against baseline.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'windowDays', type: 'number', required: false, description: 'Window in days (default 30).' },
+          { name: 'maxResults', type: 'number', required: false, description: 'Max discoveries (default 30).' },
+        ],
+        example: 'lastfm insights getDiscoveries user=ansango windowDays=30',
+      },
+      getMood: {
+        name: 'getMood',
+        brief: '2D psychometric mood profile (energy vs. valence coordinates).',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'period', type: 'string', required: false, description: 'Evaluation period (default 7day).' },
+          { name: 'topArtistsLimit', type: 'number', required: false, description: 'Top artists to analyze (default 10).' },
+        ],
+        example: 'lastfm insights getMood user=ansango period=7day',
+      },
+      getPersonality: {
+        name: 'getPersonality',
+        brief: 'Listener archetype profiling across 6 behavioral models.',
+        params: [{ name: 'user', type: 'string', required: true, description: 'Last.fm username.' }],
+        example: 'lastfm insights getPersonality user=ansango',
+      },
+      compareUsers: {
+        name: 'compareUsers',
+        brief: 'Pairwise Jaccard similarity and taste overlap between two users.',
+        params: [
+          { name: 'userA', type: 'string', required: true, description: 'First Last.fm username.' },
+          { name: 'userB', type: 'string', required: true, description: 'Second Last.fm username.' },
+          { name: 'period', type: 'string', required: false, description: 'Period (default overall).' },
+          { name: 'limit', type: 'number', required: false, description: 'Top artists to compare (default 50).' },
+        ],
+        example: 'lastfm insights compareUsers userA=ansango userB=rj period=overall',
+      },
+      getObscurityScore: {
+        name: 'getObscurityScore',
+        brief: 'Obscurity / Hipster score against global popularity.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'period', type: 'string', required: false, description: 'Period (default overall).' },
+        ],
+        example: 'lastfm insights getObscurityScore user=ansango',
+      },
+      getListeningStreaks: {
+        name: 'getListeningStreaks',
+        brief: 'Daily listening streak tracker and dry spells.',
+        params: [{ name: 'user', type: 'string', required: true, description: 'Last.fm username.' }],
+        example: 'lastfm insights getListeningStreaks user=ansango',
+      },
+      getListeningHeatmap: {
+        name: 'getListeningHeatmap',
+        brief: 'Daily listening intensity levels for calendar heatmaps.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'days', type: 'number', required: false, description: 'Number of days (default 90).' },
+        ],
+        example: 'lastfm insights getListeningHeatmap user=ansango days=90',
+      },
+      getAlbumHabits: {
+        name: 'getAlbumHabits',
+        brief: 'Sequential album cohesion score (Purist vs Shuffler).',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'minSessionTracks', type: 'number', required: false, description: 'Min tracks for session (default 3).' },
+        ],
+        example: 'lastfm insights getAlbumHabits user=ansango',
+      },
+      getGenreBreakdown: {
+        name: 'getGenreBreakdown',
+        brief: 'Normalized genre breakdown with HHI concentration index.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'period', type: 'string', required: false, description: 'Period (default overall).' },
+        ],
+        example: 'lastfm insights getGenreBreakdown user=ansango',
+      },
+      getGenreEvolution: {
+        name: 'getGenreEvolution',
+        brief: 'Shift in genre percentages between two periods.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'currentPeriod', type: 'string', required: false, description: 'Current period (default 1month).' },
+          { name: 'previousPeriod', type: 'string', required: false, description: 'Comparison period (default 12month).' },
+        ],
+        example: 'lastfm insights getGenreEvolution user=ansango currentPeriod=1month previousPeriod=12month',
+      },
+      getSmartRecommendations: {
+        name: 'getSmartRecommendations',
+        brief: 'Graph-traversal recommendations filtered against library.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'seedLimit', type: 'number', required: false, description: 'Top artists as seeds (default 5).' },
+        ],
+        example: 'lastfm insights getSmartRecommendations user=ansango seedLimit=5',
+      },
+      getBridgeArtists: {
+        name: 'getBridgeArtists',
+        brief: 'Artists bridging two distinct genres / tags.',
+        params: [
+          { name: 'tagA', type: 'string', required: true, description: 'First tag.' },
+          { name: 'tagB', type: 'string', required: true, description: 'Second tag.' },
+        ],
+        example: 'lastfm insights getBridgeArtists tagA=post-punk tagB=electronic',
+      },
+      getObsessions: {
+        name: 'getObsessions',
+        brief: 'Hyper-fixation episodes where an artist dominates a window.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'windowSize', type: 'number', required: false, description: 'Window track size (default 20).' },
+        ],
+        example: 'lastfm insights getObsessions user=ansango windowSize=20',
+      },
+      getForgottenFavorites: {
+        name: 'getForgottenFavorites',
+        brief: 'All-time favorite artists with recent listening drop.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'historicPeriod', type: 'string', required: false, description: 'Historic window (default 12month).' },
+          { name: 'recentPeriod', type: 'string', required: false, description: 'Recent window (default 1month).' },
+        ],
+        example: 'lastfm insights getForgottenFavorites user=ansango',
+      },
+      compareTasteGroup: {
+        name: 'compareTasteGroup',
+        brief: 'Group taste affinity, consensus artists, and outlier detection.',
+        params: [
+          { name: 'users', type: 'string', required: true, description: 'Comma-separated usernames (3-10).' },
+          { name: 'period', type: 'string', required: false, description: 'Period (default 1month).' },
+        ],
+        example: 'lastfm insights compareTasteGroup users=alice,bob,carol',
+      },
+    },
+  },
+  reports: {
+    name: 'reports',
+    brief: 'Spotify-style Wrapped summaries, listening milestones, and monthly digests.',
+    methods: {
+      getWrapped: {
+        name: 'getWrapped',
+        brief: 'Generate annual Wrapped review with stats, top charts, and milestones.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'year', type: 'number', required: false, description: 'Target year (default previous year).' },
+        ],
+        example: 'lastfm reports getWrapped user=ansango year=2024',
+      },
+      getMilestones: {
+        name: 'getMilestones',
+        brief: 'Calculate scrobble thresholds and milestone dates (1k, 10k, 50k, 100k).',
+        params: [{ name: 'user', type: 'string', required: true, description: 'Last.fm username.' }],
+        example: 'lastfm reports getMilestones user=ansango',
+      },
+      getMonthlyDigest: {
+        name: 'getMonthlyDigest',
+        brief: 'Monthly listening recap with top highlights and day-by-day distribution.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'year', type: 'number', required: false, description: 'Year.' },
+          { name: 'month', type: 'number', required: false, description: 'Month (1-12).' },
+        ],
+        example: 'lastfm reports getMonthlyDigest user=ansango year=2024 month=8',
+      },
+    },
+  },
+  playlists: {
+    name: 'playlists',
+    brief: 'Smart algorithmic playlist generation (forgotten favorites, discovery, time-capsule).',
+    methods: {
+      generate: {
+        name: 'generate',
+        brief: 'Generate smart playlists with multiple export formats (M3U, CSV, JSON).',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'strategy', type: 'string', required: true, description: 'Strategy (top, discoveries, forgotten, mood, workout).' },
+          { name: 'limit', type: 'number', required: false, description: 'Max tracks (default 25).' },
+        ],
+        example: 'lastfm playlists generate user=ansango strategy=top limit=25',
+      },
+    },
+  },
+  exporter: {
+    name: 'exporter',
+    brief: 'Resilient full data export and migration tools (JSONL, CSV, ListenBrainz).',
+    methods: {
+      exportScrobbles: {
+        name: 'exportScrobbles',
+        brief: 'Stream and export full scrobble history with pagination checkpoints.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'format', type: 'string', required: false, description: '"jsonl", "csv", or "listenbrainz" (default jsonl).' },
+          { name: 'from', type: 'number', required: false, description: 'Start timestamp (UTS).' },
+          { name: 'to', type: 'number', required: false, description: 'End timestamp (UTS).' },
+        ],
+        example: 'lastfm exporter exportScrobbles user=ansango format=jsonl',
+      },
+      exportLovedTracks: {
+        name: 'exportLovedTracks',
+        brief: 'Export loved tracks catalog.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'format', type: 'string', required: false, description: '"jsonl" or "csv" (default jsonl).' },
+        ],
+        example: 'lastfm exporter exportLovedTracks user=ansango',
+      },
+      exportLibrary: {
+        name: 'exportLibrary',
+        brief: 'Export complete artist library with playcounts and tags.',
+        params: [
+          { name: 'user', type: 'string', required: true, description: 'Last.fm username.' },
+          { name: 'format', type: 'string', required: false, description: '"jsonl" or "csv" (default jsonl).' },
+        ],
+        example: 'lastfm exporter exportLibrary user=ansango',
+      },
+    },
+  },
 };
 
 /** Look up a method spec by `namespace.method`. Returns `null` if not found. */

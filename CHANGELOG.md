@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] — 2026-08-29
+
+### Added
+
+- **Version flags** (`-v`, `--version`, `version`): print `@ansango/lastfm-cli v<version>`.
+- **Complete 20/20 Insights subcommands**:
+  - `obscurity`: Hipster and underground scoring against global popularity.
+  - `streaks`: Continuous daily listening streaks and dry spells.
+  - `heatmap`: Daily listening intensity mapped into contribution grid levels.
+  - `album-habits`: Sequential album cohesion and purist vs shuffler profiling.
+  - `genres`: Normalized genre breakdown with HHI market concentration index.
+  - `genre-evolution`: Macro shifts and growth rates across musical genres between periods.
+  - `recommendations`: Smart unlistened artist discovery seeded from user top artists.
+  - `bridge`: Artists connecting two distinct musical genres or tag spaces.
+  - `obsessions`: Fixation episodes where a single artist heavily dominates a window.
+  - `forgotten`: All-time favorite artists with recent activity drop (revival picks).
+  - `group-compare`: Multi-user taste blend, consensus artists, and outlier clustering.
+- **Ecosystem namespace coverage**:
+  - Added `reports`, `playlists`, `exporter`, and `insights` to `NAMESPACES` and `man` reference.
+
 ## [0.6.1] — 2026-08-29
 
 ### Added & Fixed

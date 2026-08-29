@@ -9,6 +9,10 @@ export const NAMESPACES = [
   'geo',
   'library',
   'auth',
+  'insights',
+  'reports',
+  'playlists',
+  'exporter',
 ] as const;
 
 export type Namespace = (typeof NAMESPACES)[number];

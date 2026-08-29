@@ -25,6 +25,10 @@ import {
   NAMESPACES_SPEC,
 } from './man.js';
 import { handleInsights } from './insights/dispatcher.js';
+import { handleReports } from './reports/dispatcher.js';
+import { handlePlaylists } from './playlists/dispatcher.js';
+import { handleExporter } from './exporter/dispatcher.js';
+import { runWatch } from './watch/command.js';
 import { EXIT, NAMESPACES } from './methods.js';
 
 export function getCliVersion(): string {
@@ -88,6 +92,26 @@ async function main(): Promise<void> {
 
     if (first === 'insights') {
       await handleInsights(argv.slice(1));
+      return;
+    }
+
+    if (first === 'watch') {
+      await runWatch(argv.slice(1));
+      return;
+    }
+
+    if (first === 'reports') {
+      await handleReports(argv.slice(1));
+      return;
+    }
+
+    if (first === 'playlists') {
+      await handlePlaylists(argv.slice(1));
+      return;
+    }
+
+    if (first === 'exporter' || first === 'export') {
+      await handleExporter(argv.slice(1));
       return;
     }
 

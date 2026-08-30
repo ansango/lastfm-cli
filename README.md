@@ -1,5 +1,9 @@
 # @ansango/lastfm-cli
 
+[![NPM Version](https://img.shields.io/npm/v/%40ansango%2Flastfm-cli.svg?branch=main)](https://www.npmjs.com/package/@ansango/lastfm-cli)
+[![Downloads Per Week](https://img.shields.io/npm/dw/%40ansango%2Flastfm-api.svg?color=blue)](https://www.npmjs.com/package/@ansango/lastfm-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 CLI for the [Last.fm API](https://www.last.fm/api), built on [`@ansango/lastfm-api`](https://github.com/ansango/lastfm-api).
 
 **Read-only by default.** Loads credentials from a standard `.env` file via `dotenv` (search order: `$LASTFM_CLI_ENV_FILE`, `./.env`, `~/.lastfm-cli/.env`). Emits JSON to stdout, errors to stderr.

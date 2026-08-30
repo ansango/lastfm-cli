@@ -1,7 +1,7 @@
 {
   "name": "@ansango/lastfm-cli",
-  "version": "0.8.0",
-  "description": "CLI for the Last.fm API, built on @ansango/lastfm-api. Read-only by default \u2014 no auth required.",
+  "version": "0.9.0",
+  "description": "CLI for the Last.fm API, built on @ansango/lastfm-api. Read-only by default — no auth required.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -26,7 +26,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@ansango/lastfm-api": "^3.6.0",
+    "@ansango/lastfm-api": "^3.7.0",
     "dotenv": "^17.4.2"
   },
   "devDependencies": {

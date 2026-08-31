@@ -6,7 +6,7 @@
 
 CLI for the [Last.fm API](https://www.last.fm/api), built on [`@ansango/lastfm-api`](https://github.com/ansango/lastfm-api).
 
-**Read-only by default.** Loads credentials from a standard `.env` file via `dotenv` (search order: `$LASTFM_CLI_ENV_FILE`, `./.env`, `~/.lastfm-cli/.env`). Emits JSON to stdout, errors to stderr.
+Loads credentials from a standard `.env` file via `dotenv` (search order: `$LASTFM_CLI_ENV_FILE`, `./.env`, `~/.lastfm-cli/.env`). Emits JSON to stdout, errors to stderr.
 
 ## Installation
 
